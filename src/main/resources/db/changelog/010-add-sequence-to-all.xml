@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="11" author="Simeon">
+        <createSequence sequenceName="account_seq" startValue="1" incrementBy="1"/>
+        <rollback>
+            <dropSequence sequenceName="account_seq"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="12" author="Simeon">
+        <createSequence sequenceName="email_job_seq" startValue="1" incrementBy="1"/>
+        <rollback>
+            <dropSequence sequenceName="email_job_seq"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="13" author="Simeon">
+        <createSequence sequenceName="exception_seq" startValue="1" incrementBy="1"/>
+        <rollback>
+            <dropSequence sequenceName="exception_seq"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="14" author="Simeon">
+        <createSequence sequenceName="repetision_seq" startValue="1" incrementBy="1"/>
+        <rollback>
+            <dropSequence sequenceName="repetision_seq"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="15" author="Simeon">
+        <createSequence sequenceName="role_seq" startValue="1" incrementBy="1"/>
+        <rollback>
+            <dropSequence sequenceName="role_seq"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="16" author="Simeon">
+        <createSequence sequenceName="status_seq" startValue="1" incrementBy="1"/>
+        <rollback>
+            <dropSequence sequenceName="status_seq"/>
+        </rollback>
+    </changeSet>
+    <changeSet id="17" author="Simeon">
+        <sql>ALTER SEQUENCE repetision_seq RESTART WITH 6;</sql>
+        <sql>ALTER SEQUENCE role_seq RESTART WITH 3;</sql>
+        <sql>ALTER SEQUENCE status_seq RESTART WITH 4;</sql>
+        <rollback>
+            <sql>ALTER SEQUENCE repetision_seq RESTART WITH 1;</sql>
+            <sql>ALTER SEQUENCE role_seq RESTART WITH 1;</sql>
+            <sql>ALTER SEQUENCE status_seq RESTART WITH 1;</sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="2" author="Simeon">
+        <createTable tableName="email_job">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="true"/>
+            </column>
+            <column name="uuid" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints nullable="true"/>
+            </column>
+            <column name="subject" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="message" type="VARCHAR(5000)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="email_from" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="email_to" type="VARCHAR(5000)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="date_send" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="date_due" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="time_to_sent" type="time">
+                <constraints nullable="true"/>
+            </column>
+            <column name="repetitive" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="state" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="max_num_of_trys" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+            <column name="num_of_failed_trys" type="INTEGER">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="modify_at" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_by" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="modify_by" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="next_send_time" type="timestamp"></column>
+            <column name="is_active" type="boolean" defaultValueBoolean="true"></column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="email_job"/>
+        </rollback>
+    </changeSet>
+
+
+</databaseChangeLog>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+        <changeSet id="9" author="Simeon">
+            <createTable tableName="account_roles">
+                <column name="id_role" type="BIGINT"></column>
+                <column name="id_account" type="BIGINT"></column>
+            </createTable>
+            <rollback>
+                <dropTable tableName="account_roles"/>
+            </rollback>
+
+            <addForeignKeyConstraint baseTableName="account_roles" baseColumnNames="id_role" constraintName="fk_account_role-role"
+                                     referencedTableName="role"
+                                     referencedColumnNames="id"/>
+
+            <addForeignKeyConstraint baseTableName="account_roles" baseColumnNames="id_account" constraintName="fk_role_account-account"
+                                     referencedTableName="account"
+                                     referencedColumnNames="id"/>
+            <rollback>
+                <dropForeignKeyConstraint baseTableName="account_roles" constraintName="fk_account_role-role"/>
+                <dropForeignKeyConstraint baseTableName="account_roles" constraintName="fk_role_account-account"/>
+            </rollback>
+        </changeSet>
+
+</databaseChangeLog>

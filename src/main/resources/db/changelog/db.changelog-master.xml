@@ -1,0 +1,18 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <include file="db/changelog/001-create-table-account.xml"/>
+    <include file="db/changelog/002-create-table-email-job.xml"/>
+    <include file="db/changelog/003-create-table-repetision.xml"/>
+    <include file="db/changelog/004-create-table-role.xml"/>
+    <include file="db/changelog/005-create-table-exception.xml"/>
+    <include file="db/changelog/006-create-table-status.xml"/>
+    <include file="db/changelog/007-add-relations-email_job.xml"/>
+    <include file="db/changelog/008-add-relations-account.xml"/>
+    <include file="db/changelog/009-add-status-repetision-role.xml"/>
+    <include file="db/changelog/010-add-sequence-to-all.xml"/>
+
+</databaseChangeLog>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="7" author="Simeon">
+        <addColumn tableName="email_job">
+            <column name="id_account" type="BIGINT"></column>
+            <column name="id_repetision" type="BIGINT"></column>
+            <column name="id_status" type="BIGINT"></column>
+        </addColumn>
+        <rollback>
+            <dropColumn tableName="email_job" columnName="id_account"/>
+            <dropColumn tableName="email_job" columnName="id_repetision"/>
+            <dropColumn tableName="email_job" columnName="id_status"/>
+
+        </rollback>
+    </changeSet>
+    
+    
+    
+    <changeSet id="8" author="Simeon">
+        <addForeignKeyConstraint baseTableName="email_job" baseColumnNames="id_account" constraintName="fk_emailjob_account"
+                                 referencedTableName="account"
+                                 referencedColumnNames="id"/>
+
+        <addForeignKeyConstraint baseTableName="email_job" baseColumnNames="id_repetision"
+                                 constraintName="fk_emailjob_repetision"
+                                 referencedTableName="repetision"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="email_job" baseColumnNames="id_status"
+                                 constraintName="fk_emailjob_status"
+                                 referencedTableName="status"
+                                 referencedColumnNames="id"/>
+
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="email_job" constraintName="fk_emailjob_account"/>
+            <dropForeignKeyConstraint baseTableName="email_job" constraintName="fk_emailjob_repetision"/>
+            <dropForeignKeyConstraint baseTableName="email_job" constraintName="fk_emailjob_status"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

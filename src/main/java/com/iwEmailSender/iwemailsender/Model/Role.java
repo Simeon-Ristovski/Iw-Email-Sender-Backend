@@ -1,0 +1,66 @@
+package com.iwEmailSender.iwemailsender.Model;
+
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+@Entity
+@Table(name = "role")
+public class Role {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "role_seq_gen")
+    @SequenceGenerator(name = "role_seq_gen",sequenceName = "role_seq",allocationSize = 1)
+    @Column(name = "id")
+    private long id;
+    @Column(name = "uuid")
+    private UUID uuid;
+    @Column(name = "role_name")
+    private String roleName;
+
+    @ManyToMany
+    @JoinTable(
+            name = "account_roles",
+            joinColumns =@JoinColumn(name = "id_role"),
+            inverseJoinColumns  =@JoinColumn(name = "id_account")
+
+    )
+    private List<Account> list_of_accounts= new ArrayList<>();
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
+    public List<Account> getList_of_accounts() {
+        return list_of_accounts;
+    }
+
+    public void setList_of_accounts(List<Account> list_of_accounts) {
+        this.list_of_accounts = list_of_accounts;
+    }
+
+    @Override
+    public String toString() {
+        return  roleName ;
+    }
+}

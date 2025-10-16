@@ -1,0 +1,205 @@
+
+###  ACCOUNT
+### Get all the accounts
+GET http://localhost:8080/api/v1/accounts
+
+### Get the Account with id 4
+GET http://localhost:8080/api/v1/accounts/4
+
+### Add new Account
+POST http://localhost:8080/api/v1/accounts
+
+{
+    "firstName": "Simeon",
+    "lastName": "Ristovski",
+    "email": "simeonristovski90@gmail.com",
+    "password": "password"
+}
+
+### Add Account with role
+POST http://localhost:8080/api/v1/accounts/add-role
+
+{
+  "firstName": "Simeon",
+  "lastName": "Ristovski",
+  "email": "simeonristovski90@gmail.com",
+  "password": "password",
+  "roles": [
+    "ADMINISTRATOR",
+    "USER"
+  ]
+}
+
+
+### Add role "ADMINISTRATOR" to Account
+POST http://localhost:8080/api/v1/accounts/1/roles
+
+{
+  "roleName": "ADMINISTRATOR"
+}
+
+### Edit Account with id 1
+PUT http://localhost:8080/api/v1/accounts/1
+
+{
+  "firstName": "Pece",
+  "lastName": "Ristovski",
+  "email": "simeonristovski90@gmail.com",
+  "password": "password"
+}
+
+### Delete the account with id 1
+DELETE http://localhost:8080/api/v1/accounts/1
+### Delete all the accounts
+DELETE http://localhost:8080/api/v1/accounts
+
+
+
+
+###  EMAILJOB
+
+### Get all Jobs
+GET  http://localhost:8080/api/v1/emailjobs
+
+### Get the job with id 1
+GET http://localhost:8080/api/v1/emailjobs/1
+
+### Add new EmailJob from Account 1
+POST http://localhost:8080/api/v1/emailjobs/account_id/1
+
+{
+  "subject": "Send email subject test",
+  "message": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+  "emailFrom": "bezbednostinformaciska@gmail.com",
+  "emailTo": "simeonristovski90@gmail.com",
+  "dateSend": "2025-10-07T08:00:01",
+  "dateDue": "2025-10-08T23:59:59",
+  "timeToSent": "15:00:00",
+  "repetision": { "repetisionName": "HOURLY" },
+  "repetitive": "REPETITIVE"
+}
+### edit emailJob with acc id 1 with id 1
+PUT http://localhost:8080/api/v1/emailjobs/acc/1/emailid/1
+
+{
+  "subject": "Test Test",
+  "message": "Hello, this is a test email body.",
+  "emailFrom": "bezbednostinformaciska@gmail.com",
+  "emailTo": "simeonristovski90@gmail.com",
+  "dateSend": "2025-10-07T08:00:01",
+  "dateDue": "2025-10-08T23:59:59",
+  "timeToSent": "17:50:00",
+  "repetision": { "repetisionName": "HOURLY" },
+  "repetitive": "REPETITIVE"
+}
+### EmailJobb for activating exception throwing and sending to admin
+POST http://localhost:8080/api/v1/emailjobs/account_id/1
+
+{
+  "subject": "Test Exception Email",
+  "message": "Овој мејл намерно ќе предизвика грешка за да се активира испраќање до администраторите.",
+  "emailFrom": "bezbednostinformaciska@gmail.com",
+  "emailTo": "invalid_email_address",
+  "dateSend": "2025-10-07T08:00:01",
+  "dateDue": "2025-10-07T23:59:59",
+  "timeToSent": "15:56:00",
+  "repetision": { "repetisionName": "HOURLY" },
+  "repetitive": "REPETITIVE"
+}
+
+### Repeat the Job with id 4
+POST http://localhost:8080/api/v1/emailjobs/1/repeat/1
+### Delete the Job with id 4
+DELETE http://localhost:8080/api/v1/emailjobs/1
+### Delete all the email jobs
+DELETE http://localhost:8080/api/v1/emailjobs/delete-all
+
+
+
+
+
+
+
+###  REPETISION
+### Get all the repetisions
+GET http://localhost:8080/api/v1/repetisions
+### Get the repetision with id 1
+GET http://localhost:8080/api/v1/repetisions/1
+### Add new repetision
+POST http://localhost:8080/api/v1/repetisions
+
+{
+   "repetisionName":"HOURLY",
+   "inHours":"1"
+}
+### Delete repetision with id 5
+DELETE http://localhost:8080/api/v1/repetisions/5
+
+
+
+
+
+
+###  ROLES
+
+### Get all roles
+GET http://localhost:8080/api/v1/roles
+### Get role with id 1
+GET http://localhost:8080/api/v1/roles/1
+### Add new Role
+POST http://localhost:8080/api/v1/roles
+
+{
+  "roleName": "Tester"
+}
+### Delete the role with id 3
+DELETE http://localhost:8080/api/v1/roles/3
+
+
+
+
+
+
+
+###  STATUS
+### Get all the Status
+GET http://localhost:8080/api/v1/statuses
+### Get the status with id 1
+GET http://localhost:8080/api/v1/statuses/1
+### Add new status
+POST http://localhost:8080/api/v1/statuses
+
+{
+    "statusName": "Failed Succesfuly"
+}
+### Delete the status with id 4
+DELETE http://localhost:8080/api/v1/statuses/4
+
+
+
+
+
+### Exception
+###Delete exception with id 1
+DELETE http://localhost:8080/api/v1/exceptions/1
+### Delete all the exceptions
+DELETE http://localhost:8080/api/v1/exceptions
+### Get the exception with id 1
+GET http://localhost:8080/api/v1/exceptions/1
+
+
+
+
+###  SCHEDULER
+### Start Scheduler
+GET http://localhost:8080/api/v1/emailjobs/start
+### Stop Scheduler
+GET http://localhost:8080/api/v1/emailjobs/stop
+
+
+
+
+
+
+
+

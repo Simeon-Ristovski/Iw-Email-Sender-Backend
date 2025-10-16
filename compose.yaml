@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    container_name: iw-email-sender-container
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: iw-email-sender-db
+    ports:
+      - '5432:5432'
+    volumes:
+      - iw_email_sender:/var/lib/postgresql/data
+    networks:
+      - iw_email_sender_net
+
+volumes:
+  iw_email_sender:
+
+networks:
+  iw_email_sender_net:

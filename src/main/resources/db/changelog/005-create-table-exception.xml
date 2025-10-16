@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="5" author="Simeon">
+        <createTable tableName="exception">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="true"/>
+            </column>
+            <column name="uuid" type="UUID" defaultValueComputed="gen_random_uuid()">
+                <constraints nullable="true"/>
+            </column>
+            <column name="id_job" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="message" type="VARCHAR(5000)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="date_of_exception" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="is_send" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="true"/>
+            </column>
+
+        </createTable>
+        <rollback>
+            <dropTable tableName="exception"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
