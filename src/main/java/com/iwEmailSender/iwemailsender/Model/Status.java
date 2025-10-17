@@ -20,7 +20,7 @@ public class Status {
     @Column(name = "status_name")
     private String statusName;
 
-    @OneToMany(mappedBy = "status",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "status",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<EmailJob> listOfEmailJobs= new ArrayList<>();
 
     public Long getId() {

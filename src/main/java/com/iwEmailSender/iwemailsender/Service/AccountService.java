@@ -158,28 +158,25 @@ public class AccountService {
     public void editAccount(Long id, AccountDtoInset accountDtoInset) {
         if (accountRepository.existsAccountById(id)) {
             Account editAcc = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account not found in Database!"));
-
-
-
-                editAcc.setModifyAt(LocalDateTime.now());
-                editAcc.setModifyBy("SYSTEM"); //Change when session is implemented
-                if (!accountDtoInset.getFirstName().equals(editAcc.getFirstName())) {
-                    editAcc.setFirstName(accountDtoInset.getFirstName());
+            editAcc.setModifyAt(LocalDateTime.now());
+            editAcc.setModifyBy("SYSTEM"); //Change when session is implemented
+            if (!accountDtoInset.getFirstName().equals(editAcc.getFirstName())) {
+                editAcc.setFirstName(accountDtoInset.getFirstName());
+            }
+            if (!accountDtoInset.getLastName().equals(editAcc.getLastName())) {
+                editAcc.setLastName(accountDtoInset.getLastName());
+            }
+            if (!accountDtoInset.getEmail().equals(editAcc.getEmail())) {
+                if (!accountRepository.findAll().contains(accountRepository.findByEmail(accountDtoInset.getEmail()))) {
+                    editAcc.setEmail(accountDtoInset.getEmail());
+                } else {
+                    throw new AlreadyExistsException("Email is used for another user!");
                 }
-                if (!accountDtoInset.getLastName().equals(editAcc.getLastName())) {
-                    editAcc.setLastName(accountDtoInset.getLastName());
-                }
-                if (!accountDtoInset.getEmail().equals(editAcc.getEmail())) {
-                    if (!accountRepository.findAll().contains(accountRepository.findByEmail(accountDtoInset.getEmail()))) {
-                        editAcc.setEmail(accountDtoInset.getEmail());
-                    }else {
-                        throw new AlreadyExistsException("Email is used for another user!");
-                    }
-                }
-                if (!accountDtoInset.getPassword().equals(editAcc.getPassword())) {
-                    editAcc.setPassword(passwordEncoder.bCryptPasswordEncoder(accountDtoInset.getPassword()));
-                }
-                accountRepository.save(editAcc);
+            }
+            if (!accountDtoInset.getPassword().equals(editAcc.getPassword())) {
+                editAcc.setPassword(passwordEncoder.bCryptPasswordEncoder(accountDtoInset.getPassword()));
+            }
+            accountRepository.save(editAcc);
         } else {
             throw new ResourceNotFoundException("Account not found in Database!");
         }
@@ -198,11 +195,11 @@ public class AccountService {
 
 
     public void deleteAllAccounts() {
-        if(!accountRepository.findAll().isEmpty()) {
+        if (!accountRepository.findAll().isEmpty()) {
             for (Account account : accountRepository.findAll()) {
                 deleteAccount(account.getId());
             }
-        }else {
+        } else {
             throw new ResourceNotFoundException("No accounts in Database!");
         }
     }

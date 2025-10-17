@@ -191,7 +191,7 @@ public class EmailJobService {
      * Scheduled method executing every 60sec, sending mails depending on the properties
      */
     @Scheduled(fixedDelay = 60000)
-    public void sendEmail() {
+    public void sendEmail() throws Exception {
         if (!enable) return;
 
         for (EmailJob emailJob : emailJobRepository.findEmailJobsForSendingNow(LocalDateTime.now(),LocalDateTime.now().plusMinutes(1))) {
@@ -208,7 +208,8 @@ public class EmailJobService {
 
             if (emailJob.getMaxNumOfTrys().equals(emailJob.getNumOfFailedTrys())) {
                 SimpleMailMessage message = new SimpleMailMessage();
-                if (exceptionEntityRepository.findJobByIdOrderByDateSendDesc(emailJob.getId()).getFirst() !=null) {
+//                if (exceptionEntityRepository.findJobByIdOrderByDateSendDesc(emailJob.getId()).getFirst() !=null) {
+                if (exceptionEntityRepository.haselements() > 0) {
                     ExceptionEntity exception = new ExceptionEntity();
                     if (exceptionEntityRepository.numOfExceptionsWithSameIdJob(emailJob.getId()) > 0) {
                         exception = exceptionEntityRepository.findJobByIdOrderByDateSendDesc(emailJob.getId()).getFirst();

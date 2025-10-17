@@ -30,7 +30,7 @@ public class EmailJob {
     private String emailTo;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_account")
     private Account set_by;
 
@@ -44,11 +44,11 @@ public class EmailJob {
     private LocalTime timeToSent;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_repetision")
     private Repetision repetision;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_status")
     private Status status;
 

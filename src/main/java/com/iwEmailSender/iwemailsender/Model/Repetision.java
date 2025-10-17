@@ -22,7 +22,7 @@ public class Repetision {
     private Integer inHours;
 
 
-    @OneToMany(mappedBy = "repetision",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "repetision",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<EmailJob> listOfEmailJobs= new ArrayList<>();
 
     public long getId() {

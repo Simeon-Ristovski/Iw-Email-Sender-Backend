@@ -18,9 +18,10 @@ public class Role {
     @Column(name = "role_name")
     private String roleName;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "account_roles",
+
             joinColumns =@JoinColumn(name = "id_role"),
             inverseJoinColumns  =@JoinColumn(name = "id_account")
 

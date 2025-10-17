@@ -13,7 +13,13 @@ services:
       - iw_email_sender:/var/lib/postgresql/data
     networks:
       - iw_email_sender_net
-
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 volumes:
   iw_email_sender:
 

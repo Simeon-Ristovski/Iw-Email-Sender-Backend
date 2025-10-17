@@ -19,6 +19,8 @@ public interface ExceptionEntityRepository extends JpaRepository<ExceptionEntity
     @Query("SELECT j FROM ExceptionEntity j WHERE j.id_job = :id ORDER BY j.dateOfException DESC")
     List<ExceptionEntity> findJobByIdOrderByDateSendDesc(@Param("id") Long id);
 
+    @Query("select count(j) from ExceptionEntity as j")
+    int haselements();
     boolean existsByMessage(String message);
 
     boolean existsById(Long id);
