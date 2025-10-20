@@ -18,7 +18,7 @@
         </rollback>
     </changeSet>
     <changeSet id="13" author="Simeon">
-        <createSequence sequenceName="exception_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="exception_seq" startValue="1" incrementBy="5"/>
         <rollback>
             <dropSequence sequenceName="exception_seq"/>
         </rollback>
@@ -44,7 +44,7 @@
     <changeSet id="17" author="Simeon">
         <sql>ALTER SEQUENCE repetision_seq RESTART WITH 6;</sql>
         <sql>ALTER SEQUENCE role_seq RESTART WITH 3;</sql>
-        <sql>ALTER SEQUENCE status_seq RESTART WITH 4;</sql>
+        <sql>ALTER SEQUENCE status_seq RESTART WITH 3;</sql>
         <rollback>
             <sql>ALTER SEQUENCE repetision_seq RESTART WITH 1;</sql>
             <sql>ALTER SEQUENCE role_seq RESTART WITH 1;</sql>

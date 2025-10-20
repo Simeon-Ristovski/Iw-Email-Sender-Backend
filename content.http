@@ -97,7 +97,7 @@ POST http://localhost:8080/api/v1/emailjobs/account_id/1
 
 {
   "subject": "Test Exception Email",
-  "message": "Овој мејл намерно ќе предизвика грешка за да се активира испраќање до администраторите.",
+  "message": "This mail is going to throw excepton.",
   "emailFrom": "bezbednostinformaciska@gmail.com",
   "emailTo": "invalid_email_address",
   "dateSend": "2025-10-07T08:00:01",
@@ -107,6 +107,8 @@ POST http://localhost:8080/api/v1/emailjobs/account_id/1
   "repetitive": "REPETITIVE"
 }
 
+### Set active or deactive job with id = 1
+PUT http://localhost:8080/api/v1/emailjobs/1
 ### Repeat the Job with id 4
 POST http://localhost:8080/api/v1/emailjobs/1/repeat/1
 ### Delete the Job with id 4

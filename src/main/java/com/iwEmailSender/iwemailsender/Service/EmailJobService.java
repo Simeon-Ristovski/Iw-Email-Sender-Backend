@@ -6,6 +6,7 @@ import com.iwEmailSender.iwemailsender.ExceptionHandler.Exceptions.ResourceNotFo
 import com.iwEmailSender.iwemailsender.Mappers.EmailJobMapper;
 import com.iwEmailSender.iwemailsender.Model.*;
 import com.iwEmailSender.iwemailsender.Repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -111,6 +112,7 @@ public class EmailJobService {
                 emailJob.setNextSendTime(LocalDateTime.of(dateTime.toLocalDate(), time));
                 emailJob.setState(State.ENABLE);
                 emailJob.setRepetision(repetisionRepository.findByRepetisionName(jobDtoInsert.getRepetision().getRepetisionName()));
+                emailJob.setActive(true);
                 emailJobRepository.save(emailJob);
             } else {
                 throw new ResourceNotFoundException("The account with that id doesn't exist in Database!");
@@ -154,6 +156,7 @@ public class EmailJobService {
 
     }
 
+
     public void deleteEmailJob(Long id) {
         if (emailJobRepository.existsById(id)) {
             EmailJob emailJob = emailJobRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("The email job with that id doesn't exist in Database!"));
@@ -164,11 +167,11 @@ public class EmailJobService {
     }
 
     public void deleteAllEmailJobs() {
-        if(!emailJobRepository.findAll().isEmpty()) {
+        if (!emailJobRepository.findAll().isEmpty()) {
             for (EmailJob emailJob : emailJobRepository.findAll()) {
                 deleteEmailJob(emailJob.getId());
             }
-        }else {
+        } else {
             throw new ResourceNotFoundException("No email jobs in Database!");
         }
     }
@@ -186,109 +189,61 @@ public class EmailJobService {
             enable = true;
         }
     }
+    public void setJobActiveOrDeactive(Long id,Boolean status){
+        EmailJob emailJob = emailJobRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Email job with id:"+ id +" doesn't exist in Database!"));
+        if(status == null){
+            throw new IllegalArgumentException("Invalid argument: status must be 'true' or 'false'");
+        }
+
+        emailJob.setActive(status);
+
+        if(status){
+            enableScheduler();
+        }else{
+            disableScheduler();
+        }
+        emailJobRepository.save(emailJob);
+    }
 
     /**
      * Scheduled method executing every 60sec, sending mails depending on the properties
      */
     @Scheduled(fixedDelay = 60000)
+    @Transactional
     public void sendEmail() throws Exception {
         if (!enable) return;
-
-        for (EmailJob emailJob : emailJobRepository.findEmailJobsForSendingNow(LocalDateTime.now(),LocalDateTime.now().plusMinutes(1))) {
+        List<EmailJob> list = emailJobRepository.findEmailJobsForSendingNow(LocalDateTime.now(), LocalDateTime.now().plusMinutes(1));
+        List<Account> administratorsList = accountRepository.findAllAdministrators();
+        for (EmailJob emailJob : list) {
             if (emailJob.getRepetitive().name().equals("REPETITIVE")) {
                 emailSenderService.sendMailOnTime(emailJob);
             } else {
                 emailSenderService.sendMailOnTime(emailJob);
                 emailJob.setActive(false);
             }
-            if(emailJob.getNextSendTime().isAfter(emailJob.getDateDue())){
+            if (emailJob.getNextSendTime().isAfter(emailJob.getDateDue())) {
                 emailJob.setActive(false);
             }
-
-
             if (emailJob.getMaxNumOfTrys().equals(emailJob.getNumOfFailedTrys())) {
                 SimpleMailMessage message = new SimpleMailMessage();
-//                if (exceptionEntityRepository.findJobByIdOrderByDateSendDesc(emailJob.getId()).getFirst() !=null) {
-                if (exceptionEntityRepository.haselements() > 0) {
-                    ExceptionEntity exception = new ExceptionEntity();
-                    if (exceptionEntityRepository.numOfExceptionsWithSameIdJob(emailJob.getId()) > 0) {
-                        exception = exceptionEntityRepository.findJobByIdOrderByDateSendDesc(emailJob.getId()).getFirst();
+                ExceptionEntity exception = exceptionEntityRepository.findTopById_jobOrderByDateOfExceptionDesc(emailJob.getId()).getFirst();
+                if (exception.isSend()) {
+                    for (Account allAdministrator : administratorsList) {
+                        message.setSubject("Exception from user");
+                        message.setText("Exception id: " + exception.getUuid() + "\n" +
+                                "Exception message: " + exception.getMessage() + "\n" +
+                                "Email job id from exception: " + exception.getId_job() + "\n" +
+                                "Date of exception: " + exception.getDateOfException());
+                        message.setFrom("bezbednostinformaciska@gmail.com");
+                        message.setTo(allAdministrator.getEmail());
+                        mailSender.send(message);
+                        emailJob.setNumOfFailedTrys(0);
                     }
-                    if (exception.isSend()) {
-                        for (Account allAdministrator : accountRepository.findAllAdministrators()) {
-                            message.setSubject("Exception from user");
-                            message.setText("Exception id: " + exception.getUuid() + "\n" +
-                                    "Exception message: " + exception.getMessage() + "\n" +
-                                    "Email job id from exception: " + exception.getId_job() + "\n" +
-                                    "Date of exception: " + exception.getDateOfException());
-                            message.setFrom("bezbednostinformaciska@gmail.com");
-                            message.setTo(allAdministrator.getEmail());
-                            mailSender.send(message);
-                            emailJob.setNumOfFailedTrys(0);
-                        }
-                        exception.setSend(false);
-                    }
+                    exception.setSend(false);
                 }
             }
-            emailJobRepository.save(emailJob); // TODO: Making plus queries for saving change something!!!
         }
-
-
-
-
-
-
-
-
-
-//
-//
-//
-//        for (EmailJob job : emailJobRepository.getEmailJobActive()) {
-//            LocalDateTime now = LocalDateTime.now();
-//
-//            if (now.isBefore(job.getDateDue()) && now.isAfter(job.getDateSend())) {   // TODO (dateSend,dateDue)
-//
-//                if (now.isAfter(job.getNextSendTime()) && now.isBefore(job.getNextSendTime().plusMinutes(1))) {  //TODO (HOURLY,DAILY,WEEKLY,MONTHLY,YEARLY)
-//
-//                    if (job.getRepetitive().name().equals("REPETITIVE")) {
-//                        emailSenderService.sendMailOnTime(job);
-//                    } else {
-//                        emailSenderService.sendMailOnTime(job);
-//                        job.setActive(false);
-//                    }
-//
-//                }
-//            } else {
-//                job.setActive(false);
-//            }
-//
-//            if (job.getMaxNumOfTrys().equals(job.getNumOfFailedTrys())) {
-//                SimpleMailMessage message = new SimpleMailMessage();
-//                if (!exceptionEntityRepository.findAll().isEmpty()) {
-////                      ExceptionEntity exception = exceptionEntityRepository.findByIdOfJob(job.getId());
-//                    ExceptionEntity exception = new ExceptionEntity();
-////                            exceptionEntityRepository.findJobByIdOrderByDateSendDesc(job.getId()).getFirst();
-//                    if (exceptionEntityRepository.numOfExceptionsWithSameIdJob(job.getId()) > 0) {
-//                        exception = exceptionEntityRepository.findJobByIdOrderByDateSendDesc(job.getId()).getFirst();
-//                    }
-//                    if (exception.isSend()) {
-//                        for (Account allAdministrator : accountRepository.findAllAdministrators()) {
-//                            message.setSubject("Exception from user");
-//                            message.setText("Exception id: " + exception.getUuid() + "\n" +
-//                                    "Exception message: " + exception.getMessage() + "\n" +
-//                                    "Email job id from exception: " + exception.getId_job() + "\n" +
-//                                    "Date of exception: " + exception.getDateOfException());//TODO: Add message from exception   DONE!!!
-//                            message.setFrom("bezbednostinformaciska@gmail.com");
-//                            message.setTo(allAdministrator.getEmail());
-//                            mailSender.send(message);
-//                            job.setNumOfFailedTrys(0);
-//                        }
-//                        exception.setSend(false);
-//                    }
-//                }
-//            }
-//            emailJobRepository.save(job);
-//        }
+        emailJobRepository.saveAll(list);
+        emailJobRepository.flush();
     }
 }

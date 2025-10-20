@@ -55,6 +55,11 @@ public class EmailJobController {
         emailJobService.enableOrDisabled();
         return new ResponseEntity<>("Successfully edited EmailJob",HttpStatus.OK);
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<String> setJobActiveOrDeactive(@PathVariable Long id,@RequestBody Boolean status){
+        emailJobService.setJobActiveOrDeactive(id,status);
+        return new ResponseEntity<>("Successfully edited EmailJob",HttpStatus.OK);
+    }
 
     @PostMapping("/{id_acc}/repeat/{id}")
     public ResponseEntity<String> repeatEmailJob(@PathVariable Long id_acc, @PathVariable Long id) {
@@ -62,6 +67,7 @@ public class EmailJobController {
         emailJobService.enableOrDisabled();
         return new ResponseEntity<>("Email send again",HttpStatus.OK);
     }
+
 
     @GetMapping("/start")
     public ResponseEntity<String> startScheduler() {

@@ -8,21 +8,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface ExceptionEntityRepository extends JpaRepository<ExceptionEntity,Long> {
-    @Query("select a from ExceptionEntity as a where a.id_job =:id")
-    ExceptionEntity findByIdOfJob(@Param("id") Long id);
-    @Query("select count(a) from ExceptionEntity as a where a.id_job=:id")
-    Integer numOfExceptionsWithSameIdJob(@Param("id")Long id);
 
-    @Query("SELECT j FROM ExceptionEntity j WHERE j.id_job = :id ORDER BY j.dateOfException DESC")
-    List<ExceptionEntity> findJobByIdOrderByDateSendDesc(@Param("id") Long id);
-
-    @Query("select count(j) from ExceptionEntity as j")
-    int haselements();
-    boolean existsByMessage(String message);
-
-    boolean existsById(Long id);
-//    ExceptionEntity findById(Long id);
+    ExceptionEntity findByUuid(UUID uuid);
+    @Query("select e from ExceptionEntity as e where e.id_job= :id order by e.dateOfException desc ")
+    List<ExceptionEntity> findTopById_jobOrderByDateOfExceptionDesc(@Param("id")Long id );
 }

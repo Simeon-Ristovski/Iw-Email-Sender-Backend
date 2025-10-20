@@ -5,11 +5,11 @@ import com.iwEmailSender.iwemailsender.ExceptionHandler.Exceptions.ResourceNotFo
 import com.iwEmailSender.iwemailsender.Mappers.ExceptionEntityMapper;
 import com.iwEmailSender.iwemailsender.Model.ExceptionEntity;
 import com.iwEmailSender.iwemailsender.Repository.ExceptionEntityRepository;
-import org.hibernate.resource.transaction.backend.jta.internal.synchronization.ExceptionMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ExceptionEntityService {
@@ -20,10 +20,9 @@ public class ExceptionEntityService {
     public ExceptionEntityService(ExceptionEntityRepository exceptionEntityRepository) {
         this.exceptionEntityRepository = exceptionEntityRepository;
     }
-
-    public ExeceptionEntityDto findById(Long id) {
-        ExceptionEntity exceptionEntity = exceptionEntityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("The exception with that id doesn't exist in Database!"));
-        return new ExeceptionEntityDto(exceptionEntity.getUuid(), exceptionEntity.getId_job(), exceptionEntity.getMessage(), exceptionEntity.getDateOfException());
+    public ExeceptionEntityDto findByUuid(UUID uuid){
+        ExceptionEntity exceptionEntity=exceptionEntityRepository.findByUuid(uuid);
+        return ExceptionEntityMapper.INSTANCE.mapExceptionEntityToDto(exceptionEntity);
     }
 
     public List<ExeceptionEntityDto> findAllExcepitons() {
@@ -34,7 +33,7 @@ public class ExceptionEntityService {
         return list;
     }
 
-    public void deletException(Long id) throws Exception {
+    public void deletException(Long id){
         if (exceptionEntityRepository.existsById(id)) {
             exceptionEntityRepository.delete(exceptionEntityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("The exception with that id doesn't exist in Database!")));
         } else {
@@ -42,7 +41,7 @@ public class ExceptionEntityService {
         }
     }
 
-    public void deleteAllExceptions() throws Exception {
+    public void deleteAllExceptions(){
         if (!exceptionEntityRepository.findAll().isEmpty()) {
             for (ExceptionEntity exception : exceptionEntityRepository.findAll()) {
                 deletException(exception.getId());

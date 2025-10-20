@@ -12,12 +12,12 @@ import java.util.List;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    @Query("SELECT a FROM Account a JOIN a.roles r WHERE r.roleName = 'ADMINISTRATOR'")
+    @Query("SELECT a FROM Account a JOIN fetch a.roles r WHERE r.roleName = 'ADMINISTRATOR'")
     List<Account> findAllAdministrators();
 
     boolean existsAccountByEmail(String email);
     Account findByEmail(String email);
 
     boolean existsAccountById(Long id);
-//    Account findById(Long id);
+
 }

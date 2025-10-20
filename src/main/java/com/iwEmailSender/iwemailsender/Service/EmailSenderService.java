@@ -1,10 +1,9 @@
 package com.iwEmailSender.iwemailsender.Service;
 
-import com.iwEmailSender.iwemailsender.ExceptionHandler.Exceptions.ResourceNotFoundException;
 import com.iwEmailSender.iwemailsender.Model.Account;
 import com.iwEmailSender.iwemailsender.Model.EmailJob;
 import com.iwEmailSender.iwemailsender.Model.ExceptionEntity;
-import com.iwEmailSender.iwemailsender.Repository.EmailJobRepository;
+import com.iwEmailSender.iwemailsender.Model.Status;
 import com.iwEmailSender.iwemailsender.Repository.ExceptionEntityRepository;
 import com.iwEmailSender.iwemailsender.Repository.StatusRepository;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -21,15 +20,17 @@ import java.util.UUID;
 @Service
 public class EmailSenderService {
     private final JavaMailSender mailSender;
-    private final EmailJobRepository emailJobRepository;
-    private final StatusRepository statusRepository;
     private final ExceptionEntityRepository exceptionEntityRepository;
+    private final Status statusFAILED;
+    private final Status statusSUCCESS;
 
-    public EmailSenderService(JavaMailSender mailSender, EmailJobRepository emailJobRepository, StatusRepository statusRepository, ExceptionEntityRepository exceptionEntityRepository) {
+
+    public EmailSenderService(JavaMailSender mailSender,StatusRepository statusRepository, ExceptionEntityRepository exceptionEntityRepository) {
         this.mailSender = mailSender;
-        this.emailJobRepository = emailJobRepository;
-        this.statusRepository = statusRepository;
         this.exceptionEntityRepository = exceptionEntityRepository;
+        this.statusFAILED = statusRepository.findByStatusName("FAILED");
+        this.statusSUCCESS = statusRepository.findByStatusName("SUCCESS");
+
     }
 
 
@@ -39,50 +40,48 @@ public class EmailSenderService {
         for (String s : array) {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(job.getEmailFrom());
+            job.setNumOfFailedTrys(job.getNumOfFailedTrys() + 1);
 
-            if(EmailValidator.getInstance().isValid(s)){
+            if (EmailValidator.getInstance().isValid(s)) {
                 message.setTo(s);
-            }else {
+            } else {
                 throw new Exception("Email is not valid");
             }
-
-            if(!job.getSubject().isEmpty()){
+            if (!job.getSubject().isEmpty()) {
                 message.setSubject(job.getSubject());
-                if(!job.getMessage().isEmpty()){
+                if (!job.getMessage().isEmpty()) {
                     message.setText(job.getMessage());
-                }else {
+                } else {
                     throw new Exception("Message is empty!");
                 }
-            }else {
+            } else {
                 throw new Exception("Subject is empty!");
             }
 //            message.setTo(s);
-            job.setNumOfFailedTrys(job.getNumOfFailedTrys() + 1);
-            mailSender.send(message);
-            job.setStatus(statusRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("The status with that id doesn't exist in Database!")));
-            job.setDateDue(job.getDateDue().plusHours(job.getRepetision().getInHours()));
+//            job.setDateDue(job.getDateDue().plusHours(job.getRepetision().getInHours()));
             job.setNextSendTime(job.getNextSendTime().plusMinutes(2));
+            job.setModifyAt(LocalDateTime.now());
+            job.setModifyBy("SYSTEM");
+            mailSender.send(message);
+            job.setStatus(statusSUCCESS);
             job.setNumOfFailedTrys(0);
-            emailJobRepository.save(job);
         }
     }
+
     @Recover
-    public void recover(Exception e, EmailJob job){
+    public void recover(Exception e, EmailJob job) {
         ExceptionEntity exception = new ExceptionEntity(); // add exception to base
         exception.setDateOfException(LocalDateTime.now());
         exception.setId_job(job.getId());
         exception.setUuid(UUID.randomUUID());
         exception.setMessage(e.getMessage());
         exception.setSend(true);
-        job.setNumOfFailedTrys(3);
-        job.setStatus(statusRepository.findByStatusName("FAILED"));
-        emailJobRepository.save(job);
+        job.setModifyAt(LocalDateTime.now());
+        job.setStatus(statusFAILED);
+//      job.setDateDue(job.getDateDue().plusHours(job.getRepetision().getInHours()));
+        job.setNextSendTime(job.getNextSendTime().plusMinutes(2));
 
-//        if (!exceptionEntityRepository.existsByMessage(exception.getMessage())) {
-            job.setNextSendTime(job.getNextSendTime().plusMinutes(2));
-            emailJobRepository.save(job);
-            exceptionEntityRepository.save(exception);
-//        }
+        exceptionEntityRepository.save(exception);
 
         SimpleMailMessage messageToAcc = new SimpleMailMessage();
         Account account = job.getSet_by();
@@ -92,5 +91,4 @@ public class EmailSenderService {
         messageToAcc.setFrom("bezbednostinformaciska@gmail.com");
         mailSender.send(messageToAcc);
     }
-
 }

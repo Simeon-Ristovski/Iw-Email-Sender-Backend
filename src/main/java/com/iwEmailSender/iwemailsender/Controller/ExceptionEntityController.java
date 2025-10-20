@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/exceptions")
@@ -17,9 +18,9 @@ public class ExceptionEntityController {
         this.exceptionEntityService = exceptionEntityService;
     }
 
-    @GetMapping("/{id}")
-    public ExeceptionEntityDto findById(@PathVariable Long id){
-            return exceptionEntityService.findById(id);
+    @GetMapping("/{uuid}")
+    public ExeceptionEntityDto findByUuid(@PathVariable UUID uuid){
+        return exceptionEntityService.findByUuid(uuid);
     }
 
     @GetMapping()
@@ -28,18 +29,15 @@ public class ExceptionEntityController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteExceptio(@PathVariable Long id) throws Exception {
+    public ResponseEntity<String> deleteExceptio(@PathVariable Long id){
             exceptionEntityService.deletException(id);
         return new ResponseEntity<>("Exception deleted from Database", HttpStatus.CREATED);
 
     }
     @DeleteMapping()
-    public ResponseEntity<String> deleteAllExceptions() throws Exception {
+    public ResponseEntity<String> deleteAllExceptions() {
         exceptionEntityService.deleteAllExceptions();
         return new ResponseEntity<>("Deleted all exceptions!",HttpStatus.OK);
 
     }
-
-
-
 }

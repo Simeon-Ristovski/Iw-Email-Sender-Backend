@@ -1,7 +1,6 @@
 package com.iwEmailSender.iwemailsender.Model;
 
 import jakarta.persistence.*;
-import org.springframework.data.repository.cdi.Eager;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,7 +9,7 @@ import java.util.UUID;
 public class ExceptionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "exception_seq_gen")
-    @SequenceGenerator(name = "exception_seq_gen",sequenceName = "exception_seq",allocationSize = 1)
+    @SequenceGenerator(name = "exception_seq_gen",sequenceName = "exception_seq",allocationSize = 5)
     @Column(name = "id")
     private Long id;
     @Column(name = "uuid")
