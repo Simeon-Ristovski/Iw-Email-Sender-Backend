@@ -80,6 +80,17 @@ public class EmailJobService {
             throw new ResourceNotFoundException("The account with that id doesn't exist in Database!");
         }
     }
+    public void editMaxNumOfTrys(Long id, Integer num){
+        EmailJob emailJob = emailJobRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("The email job with that id doesn't exist in Database!"));
+        if(num > 0 && num<=5) {
+            emailJob.setMaxNumOfTrys(num);
+            emailJob.setActive(true);
+            emailJobRepository.save(emailJob);
+        }else {
+            throw new IllegalArgumentException("You can’t use this number. Please choose a number between 1 and 5, including 1 and 5.");
+        }
+
+    }
 
     public EmailJob copyEmailJob(EmailJob emailJob, EmailJob job) {
         Status status = statusRepository.findById(2L).orElseThrow(() -> new ResourceNotFoundException("The status with that id doesn't exist in Database!"));

@@ -5,6 +5,7 @@ import com.iwEmailSender.iwemailsender.Dto.Input.RoleDtoInser;
 import com.iwEmailSender.iwemailsender.Dto.Output.AccountDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.AccountDtoInset;
 import com.iwEmailSender.iwemailsender.Service.AccountService;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +33,12 @@ public class AccountController {
     }
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    public ResponseEntity<String> addAccountToBase(@RequestBody AccountDtoInset accountDtoInset) {
+    public ResponseEntity<String> addAccountToBase(@RequestBody AccountDtoInset accountDtoInset) throws BadRequestException {
         accountService.addAccountToBase(accountDtoInset);
         return new ResponseEntity<>("Added Account!",HttpStatus.CREATED);
     }
     @PostMapping("/add-role")
-    public ResponseEntity<String> addAccountToBaseWithRole(@RequestBody AccountRoleDtoInsert accountRoleDtoInsert){
+    public ResponseEntity<String> addAccountToBaseWithRole(@RequestBody AccountRoleDtoInsert accountRoleDtoInsert) throws BadRequestException {
         accountService.addAccountToBaseWithRole(accountRoleDtoInsert);
         return new ResponseEntity<>("Added Account!",HttpStatus.CREATED);
     }

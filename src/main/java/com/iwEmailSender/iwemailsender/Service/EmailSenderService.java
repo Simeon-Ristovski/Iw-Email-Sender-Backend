@@ -34,12 +34,15 @@ public class EmailSenderService {
     }
 
 
-    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
+    @Retryable(value = {Exception.class}, maxAttempts = 5, backoff = @Backoff(delay = 500))
     public void sendMailOnTime(EmailJob job) throws Exception {
         String[] array = job.getEmailTo().split("\\s*,\\s*");
         for (String s : array) {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(job.getEmailFrom());
+            if(job.getNumOfFailedTrys().equals(job.getMaxNumOfTrys())){
+                throw new Exception("Reached maximum number of failed trys!");
+            }
             job.setNumOfFailedTrys(job.getNumOfFailedTrys() + 1);
 
             if (EmailValidator.getInstance().isValid(s)) {

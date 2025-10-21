@@ -13,12 +13,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.nio.file.AccessDeniedException;
@@ -38,40 +42,50 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-//        httpSecurity
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(auth -> auth
-//                        .anyRequest().permitAll()   // сите барања пуштени
-//                )
-//                .formLogin(AbstractHttpConfigurer::disable) // исклучен login form
-//                .httpBasic(AbstractHttpConfigurer::disable); // исклучен basic auth
-//        return httpSecurity.build();
-        return httpSecurity
+        httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(registry->{
-//            registry.requestMatchers("/api/v1/accounts").permitAll();
-            registry.requestMatchers("/api/v1/emailjobs").hasAuthority("ROLE_ADMINISTRATOR");
-            registry.anyRequest().authenticated();
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                )
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable);
+        return httpSecurity.build();
 
-        })
-                .exceptionHandling(exception ->
-                        exception.accessDeniedHandler(customAccessDeniedHandler()))
-                .exceptionHandling(exception ->
-                        exception.authenticationEntryPoint(customUnauthorized()))
-
-                .formLogin(AbstractAuthenticationFilterConfigurer::disable)
-                .httpBasic(Customizer.withDefaults())
-//                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
-//                .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.loginPage("/login").successHandler(new AuthenticationSuccessHandler()).permitAll())
-                .build();
+//        return httpSecurity
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests(registry->{
+//                    registry.requestMatchers(
+//                            "/startPageAdmin.html",
+//                            "/startPageUser.html",
+//                            "/adminPage.html",
+//                            "/userPage.html"
+//                            ).permitAll();
+//            registry.requestMatchers("/api/v1/emailjobs").hasAuthority("ROLE_ADMINISTRATOR");
+//            registry.anyRequest().authenticated();
+//        })
+//                .exceptionHandling(exception ->
+//                        exception.accessDeniedHandler(customAccessDeniedHandler()))
+////                .exceptionHandling(exception ->
+////                      exception.authenticationEntryPoint(customUnauthorized()))   //if you want to throw exception "First log in"
+////
+////                .formLogin(AbstractAuthenticationFilterConfigurer::disable)   //to disable login form
+////                .httpBasic(Customizer.withDefaults())  //to enable login from postman
+//                .formLogin(form->form.permitAll().successHandler( new AuthenticationSuccessHandler()))
+//                .logout(LogoutConfigurer::permitAll)
+//                .sessionManagement(session-> session.maximumSessions(1).maxSessionsPreventsLogin(true).sessionRegistry(sessionRegistry())) //disabled login to one acc from two different browsers
+////                .formLogin(httpSecurityFormLoginConfigurer -> httpSecurityFormLoginConfigurer.loginPage("/login").successHandler(new AuthenticationSuccessHandler()).permitAll()) // enabled login from new login form
+//                .build();
     }
 
-//    @Bean
-//    public UserDetailsService userDetailsService(){
-//        UserDetails admin = User.builder().username("admin").password("9876").roles("ADMINISTRATOR").build();
-//        UserDetails normalUser= User.builder().username("gc").password("1234").roles("USER").build();
-//        return  new InMemoryUserDetailsManager(admin,normalUser);
-//    }
+    @Bean
+    public SessionRegistry sessionRegistry(){
+        return  new SessionRegistryImpl();
+    }
+    @Bean
+    public static HttpSessionEventPublisher httpSessionEventPublisher(){
+        return new HttpSessionEventPublisher();
+    }
+
     @Bean
     public AccessDeniedHandler customAccessDeniedHandler(){
         return ((request, response, accessDeniedException) -> {

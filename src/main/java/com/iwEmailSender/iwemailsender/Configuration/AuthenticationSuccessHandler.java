@@ -17,18 +17,23 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
                 .stream()
                 .anyMatch(grantedAuthority ->
                         "ROLE_ADMINISTRATOR".equals(grantedAuthority.getAuthority()));
-        String redirectUrl;
-        if(isAdmin){
-//            setDefaultTargetUrl("/resources/HtmlViews/startPageAdmin.html");
-            redirectUrl= "/api/v1/accounts";
-        }else {
-//            setDefaultTargetUrl("/resources/HtmlViews/startPageUser.html");
-            redirectUrl="/api/v1/emailjobs";
-        }
 
-//        super.onAuthenticationSuccess(request, response, authentication);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"redirectUrl\":\""+ redirectUrl + "\"}");
+//        String redirectUrl;       // if we want to test from postman and we want response there
+//        if(isAdmin){
+//
+//            redirectUrl= "/api/v1/accounts";
+//        }else {
+//            redirectUrl="/api/v1/emailjobs";
+//        }
+//        response.setContentType("application/json");
+//        response.setCharacterEncoding("UTF-8");
+//        response.getWriter().write("{\"redirectUrl\":\""+ redirectUrl + "\"}");
+
+        if(isAdmin){
+            setDefaultTargetUrl("/startPageAdmin.html");
+        } else {
+            setDefaultTargetUrl("/startPageUser.html");
+        }
+        super.onAuthenticationSuccess(request, response, authentication);
     }
 }

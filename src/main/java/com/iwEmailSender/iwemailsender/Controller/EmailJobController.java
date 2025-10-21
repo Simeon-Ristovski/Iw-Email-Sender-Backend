@@ -3,6 +3,7 @@ package com.iwEmailSender.iwemailsender.Controller;
 import com.iwEmailSender.iwemailsender.Dto.Output.EmailJobDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.EmailJobDtoInsert;
 import com.iwEmailSender.iwemailsender.Service.EmailJobService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,19 +49,23 @@ public class EmailJobController {
         return new ResponseEntity<>("Deleted all Email jobs!",HttpStatus.OK);
     }
 
-
     @PutMapping("/acc/{id_acc}/emailid/{id_emailJob}")
     public ResponseEntity<String> editEmailJob(@PathVariable Long id_acc, @PathVariable Long id_emailJob, @RequestBody EmailJobDtoInsert emailJobDtoInsert)  {
         emailJobService.editEmailJob(id_acc, id_emailJob, emailJobDtoInsert);
         emailJobService.enableOrDisabled();
         return new ResponseEntity<>("Successfully edited EmailJob",HttpStatus.OK);
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<String> setJobActiveOrDeactive(@PathVariable Long id,@RequestBody Boolean status){
         emailJobService.setJobActiveOrDeactive(id,status);
         return new ResponseEntity<>("Successfully edited EmailJob",HttpStatus.OK);
     }
-
+    @PutMapping("/number-of-failed-trys/{id}")
+    private ResponseEntity<String> editMaxNumOdFailedTrys(@PathVariable Long id, @RequestBody Integer num){
+        emailJobService.editMaxNumOfTrys(id,num);
+        return new ResponseEntity<>("Successfully edited EmailJob",HttpStatus.OK);
+    }
     @PostMapping("/{id_acc}/repeat/{id}")
     public ResponseEntity<String> repeatEmailJob(@PathVariable Long id_acc, @PathVariable Long id) {
         emailJobService.repeatTheSameEmailJob(id_acc, id);
@@ -68,16 +73,15 @@ public class EmailJobController {
         return new ResponseEntity<>("Email send again",HttpStatus.OK);
     }
 
-
     @GetMapping("/start")
     public ResponseEntity<String> startScheduler() {
         emailJobService.enableScheduler();
         return new ResponseEntity<>("Scheduler started.",HttpStatus.OK);
     }
-
     @GetMapping("/stop")
     public ResponseEntity<String> stopScheduler() {
         emailJobService.disableScheduler();
         return new ResponseEntity<>("Scheduler stopped.", HttpStatus.OK);
     }
+
 }

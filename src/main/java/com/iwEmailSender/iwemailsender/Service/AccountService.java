@@ -13,8 +13,7 @@ import com.iwEmailSender.iwemailsender.Model.Account;
 import com.iwEmailSender.iwemailsender.Model.Role;
 import com.iwEmailSender.iwemailsender.Repository.AccountRepository;
 import com.iwEmailSender.iwemailsender.Repository.RoleRepository;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.apache.coyote.BadRequestException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class AccountService implements UserDetailsService {
@@ -42,10 +40,6 @@ public class AccountService implements UserDetailsService {
         this.roleRepository = roleRepository;
         this.myPasswordEncoder = myPasswordEncoder;
     }
-
-
-
-
 
 
     @Override
@@ -66,13 +60,6 @@ public class AccountService implements UserDetailsService {
 
 
 
-
-
-
-
-
-
-
     public List<AccountDto> findAll() {
         List<AccountDto> accounts = new ArrayList<>();
         for (Account account : accountRepository.findAll()) {
@@ -86,10 +73,19 @@ public class AccountService implements UserDetailsService {
         return AccountMapper.INSTANCE.mapAccountToDto(accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account not found in Database!")));
     }
 
-    public void addAccountToBaseWithRole(AccountRoleDtoInsert accountRoleDtoInsert) {
+    public void addAccountToBaseWithRole(AccountRoleDtoInsert accountRoleDtoInsert) throws BadRequestException {
         if (!accountRepository.existsAccountByEmail(accountRoleDtoInsert.getEmail())) {
-            if (EmailValidator.getInstance().isValid(accountRoleDtoInsert.getEmail())) {
+            if (EmailValidator.getInstance().isValid(accountRoleDtoInsert.getEmail()) && !accountRoleDtoInsert.getEmail().isEmpty()) {
 //                Account account = AccountRoleMapper.INSTANCE.mapDtoInsertToAccount(accountRoleDtoInsert);// Mapping from AccountDtoInsert to Account
+                if(accountRoleDtoInsert.getFirstName().isEmpty()){
+                    throw new BadRequestException("Field for name cannot be empty!");
+                }
+                if(accountRoleDtoInsert.getLastName().isEmpty()){
+                    throw new BadRequestException("Field for last name cannot be empty!");
+                }
+                if(accountRoleDtoInsert.getPassword().isEmpty()){
+                    throw new BadRequestException("Field for password cannot be empty!");
+                }
                 Account account = new Account();
                 account.setEmail(accountRoleDtoInsert.getEmail());
                 account.setFirstName(accountRoleDtoInsert.getFirstName());
@@ -142,9 +138,18 @@ public class AccountService implements UserDetailsService {
         }
     }
 
-    public void addAccountToBase(AccountDtoInset accountDtoInset) {
+    public void addAccountToBase(AccountDtoInset accountDtoInset) throws BadRequestException {
         if (!accountRepository.existsAccountByEmail(accountDtoInset.getEmail())) {
-            if (EmailValidator.getInstance().isValid(accountDtoInset.getEmail())) {
+            if (EmailValidator.getInstance().isValid(accountDtoInset.getEmail()) && !accountDtoInset.getEmail().isEmpty()) {
+                if(accountDtoInset.getFirstName().isEmpty()){
+                    throw new BadRequestException("Field for name cannot be empty!");
+                }
+                if(accountDtoInset.getLastName().isEmpty()){
+                    throw new BadRequestException("Field for last name cannot be empty!");
+                }
+                if(accountDtoInset.getPassword().isEmpty()){
+                    throw new BadRequestException("Field for password cannot be empty!");
+                }
                 Account account = AccountMapper.INSTANCE.mapDtoInsertToAccount(accountDtoInset); // Mapping from AccountDtoInsert to Account
                 account.setUuid(UUID.randomUUID());
                 account.setPassword(myPasswordEncoder.bCryptPasswordEncoder(account.getPassword()));
