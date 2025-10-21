@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 
+import javax.accessibility.AccessibleAction;
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -16,7 +18,9 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     List<Account> findAllAdministrators();
 
     boolean existsAccountByEmail(String email);
-    Account findByEmail(String email);
+//    Account findByEmail(String email);
+    Optional<Account> findByEmail(String email);
+
 
     boolean existsAccountById(Long id);
 

@@ -27,7 +27,7 @@ public class Account {
     @Column(name = "password")
     private String password;
 
-    @ManyToMany(mappedBy = "list_of_accounts",fetch = FetchType.LAZY,cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToMany(mappedBy = "list_of_accounts",fetch = FetchType.EAGER,cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private  List<Role> roles = new ArrayList<>();
     @OneToMany(mappedBy = "set_by",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private  List<EmailJob> list_of_jobs = new ArrayList<>();

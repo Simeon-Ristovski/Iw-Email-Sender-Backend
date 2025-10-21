@@ -1,6 +1,6 @@
 package com.iwEmailSender.iwemailsender.Service;
 
-import com.iwEmailSender.iwemailsender.Configuration.PasswordEncoder;
+import com.iwEmailSender.iwemailsender.Configuration.MyPasswordEncoder;
 import com.iwEmailSender.iwemailsender.Dto.Input.AccountRoleDtoInsert;
 import com.iwEmailSender.iwemailsender.Dto.Input.RoleDtoInser;
 import com.iwEmailSender.iwemailsender.Dto.Output.AccountDto;
@@ -13,27 +13,65 @@ import com.iwEmailSender.iwemailsender.Model.Account;
 import com.iwEmailSender.iwemailsender.Model.Role;
 import com.iwEmailSender.iwemailsender.Repository.AccountRepository;
 import com.iwEmailSender.iwemailsender.Repository.RoleRepository;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.apache.commons.validator.routines.EmailValidator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
-public class AccountService {
+public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final MyPasswordEncoder myPasswordEncoder;
 
 
-    public AccountService(AccountRepository accountRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public AccountService(AccountRepository accountRepository, RoleRepository roleRepository, MyPasswordEncoder myPasswordEncoder) {
         this.accountRepository = accountRepository;
         this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.myPasswordEncoder = myPasswordEncoder;
     }
+
+
+
+
+
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<Account> account = accountRepository.findByEmail(email);
+        if(account.isPresent()){
+            var userObj = account.get();
+            String[] roleNames = userObj.getRoles().stream().map(Role::getRoleName).toArray(String[]::new);
+            return User.builder()
+                    .username(userObj.getEmail())
+                    .password(userObj.getPassword())
+                    .roles(roleNames)
+                    .build();
+        }else {
+            throw new UsernameNotFoundException(email);
+        }
+    }
+
+
+
+
+
+
+
+
+
 
     public List<AccountDto> findAll() {
         List<AccountDto> accounts = new ArrayList<>();
@@ -56,7 +94,7 @@ public class AccountService {
                 account.setEmail(accountRoleDtoInsert.getEmail());
                 account.setFirstName(accountRoleDtoInsert.getFirstName());
                 account.setLastName(accountRoleDtoInsert.getLastName());
-                account.setPassword(passwordEncoder.bCryptPasswordEncoder(accountRoleDtoInsert.getPassword()));
+                account.setPassword(myPasswordEncoder.bCryptPasswordEncoder(accountRoleDtoInsert.getPassword()));
                 account.setUuid(UUID.randomUUID());
                 account.setCreatedAt(LocalDateTime.now());
                 account.setCreatedBy("SYSTEM");
@@ -109,7 +147,7 @@ public class AccountService {
             if (EmailValidator.getInstance().isValid(accountDtoInset.getEmail())) {
                 Account account = AccountMapper.INSTANCE.mapDtoInsertToAccount(accountDtoInset); // Mapping from AccountDtoInsert to Account
                 account.setUuid(UUID.randomUUID());
-                account.setPassword(passwordEncoder.bCryptPasswordEncoder(account.getPassword()));
+                account.setPassword(myPasswordEncoder.bCryptPasswordEncoder(account.getPassword()));
                 account.setCreatedAt(LocalDateTime.now());
                 account.setCreatedBy("SYSTEM");
                 account.setModifyAt(LocalDateTime.now());
@@ -174,7 +212,7 @@ public class AccountService {
                 }
             }
             if (!accountDtoInset.getPassword().equals(editAcc.getPassword())) {
-                editAcc.setPassword(passwordEncoder.bCryptPasswordEncoder(accountDtoInset.getPassword()));
+                editAcc.setPassword(myPasswordEncoder.bCryptPasswordEncoder(accountDtoInset.getPassword()));
             }
             accountRepository.save(editAcc);
         } else {
