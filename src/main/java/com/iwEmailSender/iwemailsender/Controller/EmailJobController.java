@@ -1,5 +1,6 @@
 package com.iwEmailSender.iwemailsender.Controller;
 
+import com.iwEmailSender.iwemailsender.Dto.Input.EmailJobTimeToSendNextInsertDto;
 import com.iwEmailSender.iwemailsender.Dto.Output.EmailJobDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.EmailJobDtoInsert;
 import com.iwEmailSender.iwemailsender.Service.EmailJobService;
@@ -67,8 +68,8 @@ public class EmailJobController {
         return new ResponseEntity<>("Successfully edited EmailJob",HttpStatus.OK);
     }
     @PostMapping("/{id_acc}/repeat/{id}")
-    public ResponseEntity<String> repeatEmailJob(@PathVariable Long id_acc, @PathVariable Long id) {
-        emailJobService.repeatTheSameEmailJob(id_acc, id);
+    public ResponseEntity<String> repeatEmailJob(@PathVariable Long id_acc, @PathVariable Long id, @RequestBody EmailJobTimeToSendNextInsertDto emailJobTimeToSendNextInsertDto) {
+        emailJobService.repeatTheSameEmailJob(id_acc, id,emailJobTimeToSendNextInsertDto);
         emailJobService.enableOrDisabled();
         return new ResponseEntity<>("Email send again",HttpStatus.OK);
     }

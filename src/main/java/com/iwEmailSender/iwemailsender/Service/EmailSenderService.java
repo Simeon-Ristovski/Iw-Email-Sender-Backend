@@ -1,5 +1,6 @@
 package com.iwEmailSender.iwemailsender.Service;
 
+import com.iwEmailSender.iwemailsender.ExceptionHandler.Exceptions.ResourceNotFoundException;
 import com.iwEmailSender.iwemailsender.Model.Account;
 import com.iwEmailSender.iwemailsender.Model.EmailJob;
 import com.iwEmailSender.iwemailsender.Model.ExceptionEntity;
@@ -40,11 +41,9 @@ public class EmailSenderService {
         for (String s : array) {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(job.getEmailFrom());
-            if(job.getNumOfFailedTrys().equals(job.getMaxNumOfTrys())){
-                throw new Exception("Reached maximum number of failed trys!");
+            if(!job.getNumOfFailedTrys().equals(job.getMaxNumOfTrys())){
+                job.setNumOfFailedTrys(job.getNumOfFailedTrys() + 1);
             }
-            job.setNumOfFailedTrys(job.getNumOfFailedTrys() + 1);
-
             if (EmailValidator.getInstance().isValid(s)) {
                 message.setTo(s);
             } else {

@@ -1,5 +1,6 @@
 package com.iwEmailSender.iwemailsender.Service;
 
+import com.iwEmailSender.iwemailsender.Dto.Input.EmailJobTimeToSendNextInsertDto;
 import com.iwEmailSender.iwemailsender.Dto.Output.EmailJobDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.EmailJobDtoInsert;
 import com.iwEmailSender.iwemailsender.ExceptionHandler.Exceptions.ResourceNotFoundException;
@@ -28,6 +29,7 @@ public class EmailJobService {
     private final JavaMailSender mailSender;
     private final EmailSenderService emailSenderService;
     private Boolean enable = false;
+    private final List<Account> administratorsList;
 
 
     public EmailJobService(EmailJobRepository emailJobRepository, AccountRepository accountRepository, StatusRepository statusRepository, RepetisionRepository repetisionRepository, ExceptionEntityRepository exceptionEntityRepository, JavaMailSender mailSender, EmailSenderService emailSenderService) {
@@ -38,6 +40,7 @@ public class EmailJobService {
         this.exceptionEntityRepository = exceptionEntityRepository;
         this.mailSender = mailSender;
         this.emailSenderService = emailSenderService;
+        this.administratorsList= accountRepository.findAllAdministrators();
     }
 
 
@@ -136,13 +139,19 @@ public class EmailJobService {
     /**
      * If you want to repeat the same email with the same parameters
      */
-    public void repeatTheSameEmailJob(long id_acc, long id_job) {
+    public void repeatTheSameEmailJob(long id_acc, long id_job, EmailJobTimeToSendNextInsertDto emailJobTimeToSendNextInsertDto) {
         if (emailJobRepository.existsById(id_job)) {
             EmailJob original = emailJobRepository.findById(id_job).orElseThrow(() -> new ResourceNotFoundException("The email job with that id doesn't exist in Database!"));
             if (accountRepository.existsAccountById(id_acc)) {
                 Account account = accountRepository.findById(id_acc).orElseThrow(() -> new ResourceNotFoundException("The account with that id doesn't exist in Database!"));
+
                 EmailJob copy = new EmailJob();
+
                 copy = copyEmailJob(copy, original);
+
+                copy.setDateDue(emailJobTimeToSendNextInsertDto.getDateDue());
+                copy.setDateSend(emailJobTimeToSendNextInsertDto.getDateSend());
+                copy.setTimeToSent(emailJobTimeToSendNextInsertDto.getTimeToSent());
                 copy.setUuid(UUID.randomUUID());
                 copy.setModifyAt(LocalDateTime.now());
                 copy.setModifyBy(account.getFirstName());
@@ -154,8 +163,9 @@ public class EmailJobService {
                 copy.setMaxNumOfTrys(3);
                 copy.setNumOfFailedTrys(original.getNumOfFailedTrys());
                 copy.setActive(true);
-                copy.setTimeToSent(LocalTime.now().plusMinutes(1));
-                copy.setNextSendTime(LocalDateTime.now().plusMinutes(1));
+                LocalDateTime dateTime = copy.getDateSend();    // LocalDateTime
+                LocalTime time = copy.getTimeToSent();          // LocalTime
+                copy.setNextSendTime(LocalDateTime.of(dateTime.toLocalDate(), time));
                 emailJobRepository.save(copy);
             } else {
                 throw new ResourceNotFoundException("The account with that id doesn't exist in Database!");
@@ -224,7 +234,7 @@ public class EmailJobService {
     public void sendEmail() throws Exception {
         if (!enable) return;
         List<EmailJob> list = emailJobRepository.findEmailJobsForSendingNow(LocalDateTime.now(), LocalDateTime.now().plusMinutes(1));
-        List<Account> administratorsList = accountRepository.findAllAdministrators();
+
         for (EmailJob emailJob : list) {
             if (emailJob.getRepetitive().name().equals("REPETITIVE")) {
                 emailSenderService.sendMailOnTime(emailJob);
