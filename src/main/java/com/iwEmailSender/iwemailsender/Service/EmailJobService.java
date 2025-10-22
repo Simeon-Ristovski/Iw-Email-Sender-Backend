@@ -29,7 +29,6 @@ public class EmailJobService {
     private final JavaMailSender mailSender;
     private final EmailSenderService emailSenderService;
     private Boolean enable = false;
-    private final List<Account> administratorsList;
 
 
     public EmailJobService(EmailJobRepository emailJobRepository, AccountRepository accountRepository, StatusRepository statusRepository, RepetisionRepository repetisionRepository, ExceptionEntityRepository exceptionEntityRepository, JavaMailSender mailSender, EmailSenderService emailSenderService) {
@@ -40,7 +39,6 @@ public class EmailJobService {
         this.exceptionEntityRepository = exceptionEntityRepository;
         this.mailSender = mailSender;
         this.emailSenderService = emailSenderService;
-        this.administratorsList= accountRepository.findAllAdministrators();
     }
 
 
@@ -234,7 +232,7 @@ public class EmailJobService {
     public void sendEmail() throws Exception {
         if (!enable) return;
         List<EmailJob> list = emailJobRepository.findEmailJobsForSendingNow(LocalDateTime.now(), LocalDateTime.now().plusMinutes(1));
-
+        List<Account> administratorsList = accountRepository.findAllAdministrators();;
         for (EmailJob emailJob : list) {
             if (emailJob.getRepetitive().name().equals("REPETITIVE")) {
                 emailSenderService.sendMailOnTime(emailJob);
