@@ -2,7 +2,6 @@ package com.iwEmailSender.iwemailsender.Model;
 
 
 import jakarta.persistence.*;
-import org.springframework.jdbc.core.SqlReturnType;
 
 import java.util.ArrayList;
 import java.util.List;

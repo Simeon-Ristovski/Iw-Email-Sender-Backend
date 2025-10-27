@@ -11,24 +11,24 @@
         <insert tableName="role">
             <column name="role_name" value="USER"></column>
         </insert>
-        <insert tableName="repetision">
-            <column name="repetision_name" value="DAILY"></column>
+        <insert tableName="repetition">
+            <column name="repetition_name" value="DAILY"></column>
             <column name="in_hours" value="24"/>
         </insert>
-        <insert tableName="repetision">
-            <column name="repetision_name" value="WEEKLY"></column>
+        <insert tableName="repetition">
+            <column name="repetition_name" value="WEEKLY"></column>
             <column name="in_hours" value="168"/>
         </insert>
-        <insert tableName="repetision">
-            <column name="repetision_name" value="MONTHLY"></column>
+        <insert tableName="repetition">
+            <column name="repetition_name" value="MONTHLY"></column>
             <column name="in_hours" value="720"/>
         </insert>
-        <insert tableName="repetision">
-            <column name="repetision_name" value="YEARLY"></column>
+        <insert tableName="repetition">
+            <column name="repetition_name" value="YEARLY"></column>
             <column name="in_hours" value="8760"/>
         </insert>
-        <insert tableName="repetision">
-            <column name="repetision_name" value="HOURLY"></column>
+        <insert tableName="repetition">
+            <column name="repetition_name" value="HOURLY"></column>
             <column name="in_hours" value="1"/>
         </insert>
 
@@ -42,8 +42,8 @@
             <delete tableName="role">
                 <where>role_name IN ('ADMINISTRATOR', 'USER')</where>
             </delete>
-            <delete tableName="repetision">
-                <where>repetision_name IN ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY','HOURLY')</where>
+            <delete tableName="repetition">
+                <where>repetition_name IN ('DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY','HOURLY')</where>
             </delete>
             <delete tableName="status">
                 <where>status_name IN ('SUCCESS', 'FAILED')</where>

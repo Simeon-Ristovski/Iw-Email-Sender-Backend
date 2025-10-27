@@ -1,6 +1,6 @@
 package com.iwEmailSender.iwemailsender.Dto.Input;
 
-import com.iwEmailSender.iwemailsender.Model.Repetision;
+import com.iwEmailSender.iwemailsender.Model.Repetition;
 
 
 import java.time.LocalDateTime;
@@ -10,12 +10,11 @@ public class EmailJobDtoInsert {
 
     private String subject;
     private String message;
-    private String emailFrom;
     private String emailTo;
     private LocalDateTime dateSend;
     private LocalDateTime dateDue;
     private LocalTime timeToSent;
-    private Repetision repetision;
+    private Repetition repetition;
     private String repetitive;
 
     public String getSubject() {
@@ -32,14 +31,6 @@ public class EmailJobDtoInsert {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public String getEmailFrom() {
-        return emailFrom;
-    }
-
-    public void setEmailFrom(String emailFrom) {
-        this.emailFrom = emailFrom;
     }
 
     public String getEmailTo() {
@@ -74,12 +65,12 @@ public class EmailJobDtoInsert {
         this.timeToSent = timeToSent;
     }
 
-    public Repetision getRepetision() {
-        return repetision;
+    public Repetition getRepetition() {
+        return repetition;
     }
 
-    public void setRepetision(Repetision repetision) {
-        this.repetision = repetision;
+    public void setRepetition(Repetition repetition) {
+        this.repetition = repetition;
     }
 
     public String getRepetitive() {

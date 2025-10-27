@@ -17,7 +17,7 @@ public interface EmailJobRepository extends JpaRepository<EmailJob,Long> {
 
     @Query("""
             select a from EmailJob as a 
-            left join fetch a.repetision
+            left join fetch a.repetition
             left join fetch a.set_by
             left join fetch a.status
             where a.nextSendTime between :timeToSendFrom and :timeToSendTo and a.isActive=true 

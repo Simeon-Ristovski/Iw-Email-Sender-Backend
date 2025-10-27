@@ -1,6 +1,5 @@
 package com.iwEmailSender.iwemailsender.Service;
 
-import com.iwEmailSender.iwemailsender.ExceptionHandler.Exceptions.ResourceNotFoundException;
 import com.iwEmailSender.iwemailsender.Model.Account;
 import com.iwEmailSender.iwemailsender.Model.EmailJob;
 import com.iwEmailSender.iwemailsender.Model.ExceptionEntity;
@@ -8,6 +7,8 @@ import com.iwEmailSender.iwemailsender.Model.Status;
 import com.iwEmailSender.iwemailsender.Repository.ExceptionEntityRepository;
 import com.iwEmailSender.iwemailsender.Repository.StatusRepository;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.retry.annotation.Backoff;
@@ -20,6 +21,7 @@ import java.util.UUID;
 
 @Service
 public class EmailSenderService {
+    private static final Logger logger= LoggerFactory.getLogger(EmailSenderService.class);
     private final JavaMailSender mailSender;
     private final ExceptionEntityRepository exceptionEntityRepository;
     private final Status statusFAILED;
@@ -37,17 +39,16 @@ public class EmailSenderService {
 
     @Retryable(value = {Exception.class}, maxAttempts = 5, backoff = @Backoff(delay = 500))
     public void sendMailOnTime(EmailJob job) throws Exception {
-        String[] array = job.getEmailTo().split("\\s*,\\s*");
-        for (String s : array) {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(job.getEmailFrom());
             if(!job.getNumOfFailedTrys().equals(job.getMaxNumOfTrys())){
                 job.setNumOfFailedTrys(job.getNumOfFailedTrys() + 1);
             }
-            if (EmailValidator.getInstance().isValid(s)) {
-                message.setTo(s);
+            if (EmailValidator.getInstance().isValid(job.getEmailTo())) {
+                message.setTo(job.getEmailTo());
             } else {
-                throw new Exception("Email is not valid");
+                logger.error("Invalid email!");
+                throw new Exception("Email: "+ job.getEmailTo() +" is not valid");
             }
             if (!job.getSubject().isEmpty()) {
                 message.setSubject(job.getSubject());
@@ -60,14 +61,14 @@ public class EmailSenderService {
                 throw new Exception("Subject is empty!");
             }
 //            message.setTo(s);
-//            job.setDateDue(job.getDateDue().plusHours(job.getRepetision().getInHours()));
-            job.setNextSendTime(job.getNextSendTime().plusMinutes(2));
             job.setModifyAt(LocalDateTime.now());
             job.setModifyBy("SYSTEM");
             mailSender.send(message);
             job.setStatus(statusSUCCESS);
+
+            logger.info("Email send successfully to :"+ job.getEmailTo() +"!");
+
             job.setNumOfFailedTrys(0);
-        }
     }
 
     @Recover
@@ -80,8 +81,6 @@ public class EmailSenderService {
         exception.setSend(true);
         job.setModifyAt(LocalDateTime.now());
         job.setStatus(statusFAILED);
-//      job.setDateDue(job.getDateDue().plusHours(job.getRepetision().getInHours()));
-        job.setNextSendTime(job.getNextSendTime().plusMinutes(2));
 
         exceptionEntityRepository.save(exception);
 
@@ -91,6 +90,9 @@ public class EmailSenderService {
         messageToAcc.setTo(account.getEmail());
         messageToAcc.setSubject("Contact the administrator.");
         messageToAcc.setFrom("bezbednostinformaciska@gmail.com");
+
+        logger.info("Contact administrator mail send!");
+
         mailSender.send(messageToAcc);
     }
 }

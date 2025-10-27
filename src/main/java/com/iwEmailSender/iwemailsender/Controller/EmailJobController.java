@@ -1,10 +1,12 @@
 package com.iwEmailSender.iwemailsender.Controller;
 
 import com.iwEmailSender.iwemailsender.Dto.Input.EmailJobTimeToSendNextInsertDto;
+import com.iwEmailSender.iwemailsender.Dto.Input.IsActiveInsert;
+import com.iwEmailSender.iwemailsender.Dto.Input.MaxNumOfTriesInsert;
 import com.iwEmailSender.iwemailsender.Dto.Output.EmailJobDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.EmailJobDtoInsert;
 import com.iwEmailSender.iwemailsender.Service.EmailJobService;
-import jakarta.persistence.criteria.CriteriaBuilder;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +34,7 @@ public class EmailJobController {
     }
 
     @PostMapping("/account_id/{id}")
-    public ResponseEntity<String> addEmailJob(@PathVariable Long id, @RequestBody EmailJobDtoInsert emailJobDtoInsert){
+    public ResponseEntity<String> addEmailJob(@PathVariable Long id, @RequestBody EmailJobDtoInsert emailJobDtoInsert) throws BadRequestException {
         emailJobService.addEmailJob(id, emailJobDtoInsert);
         emailJobService.enableOrDisabled();
         return new ResponseEntity<>("Successfully added EmailJob",HttpStatus.CREATED);
@@ -51,24 +53,24 @@ public class EmailJobController {
     }
 
     @PutMapping("/acc/{id_acc}/emailid/{id_emailJob}")
-    public ResponseEntity<String> editEmailJob(@PathVariable Long id_acc, @PathVariable Long id_emailJob, @RequestBody EmailJobDtoInsert emailJobDtoInsert)  {
+    public ResponseEntity<String> editEmailJob(@PathVariable Long id_acc, @PathVariable Long id_emailJob, @RequestBody EmailJobDtoInsert emailJobDtoInsert) throws BadRequestException {
         emailJobService.editEmailJob(id_acc, id_emailJob, emailJobDtoInsert);
         emailJobService.enableOrDisabled();
         return new ResponseEntity<>("Successfully edited EmailJob",HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> setJobActiveOrDeactive(@PathVariable Long id,@RequestBody Boolean status){
-        emailJobService.setJobActiveOrDeactive(id,status);
+    public ResponseEntity<String> setJobActiveOrDeactive(@PathVariable Long id,@RequestBody IsActiveInsert isActiveInsert){
+        emailJobService.setJobActiveOrDeactive(id,isActiveInsert);
         return new ResponseEntity<>("Successfully edited EmailJob",HttpStatus.OK);
     }
     @PutMapping("/number-of-failed-trys/{id}")
-    private ResponseEntity<String> editMaxNumOdFailedTrys(@PathVariable Long id, @RequestBody Integer num){
+    private ResponseEntity<String> editMaxNumOdFailedTrys(@PathVariable Long id, @RequestBody MaxNumOfTriesInsert num) throws BadRequestException {
         emailJobService.editMaxNumOfTrys(id,num);
         return new ResponseEntity<>("Successfully edited EmailJob",HttpStatus.OK);
     }
     @PostMapping("/{id_acc}/repeat/{id}")
-    public ResponseEntity<String> repeatEmailJob(@PathVariable Long id_acc, @PathVariable Long id, @RequestBody EmailJobTimeToSendNextInsertDto emailJobTimeToSendNextInsertDto) {
+    public ResponseEntity<String> repeatEmailJob(@PathVariable Long id_acc, @PathVariable Long id, @RequestBody EmailJobTimeToSendNextInsertDto emailJobTimeToSendNextInsertDto) throws BadRequestException {
         emailJobService.repeatTheSameEmailJob(id_acc, id,emailJobTimeToSendNextInsertDto);
         emailJobService.enableOrDisabled();
         return new ResponseEntity<>("Email send again",HttpStatus.OK);

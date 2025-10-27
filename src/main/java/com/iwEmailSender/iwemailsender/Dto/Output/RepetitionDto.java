@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class RepetisionDto {
+public class RepetitionDto {
 
     private UUID uuid;
 
-    private String repetisionName;
+    private String repetitionName;
 
     private List<String> listOfEmailJobs = new ArrayList<>();
 
@@ -22,12 +22,12 @@ public class RepetisionDto {
         this.uuid = uuid;
     }
 
-    public String getRepetisionName() {
-        return repetisionName;
+    public String getRepetitionName() {
+        return repetitionName;
     }
 
-    public void setRepetisionName(String repetisionName) {
-        this.repetisionName = repetisionName;
+    public void setRepetitionName(String repetitionName) {
+        this.repetitionName = repetitionName;
     }
 
     public List<String> getListOfEmailJobs() {

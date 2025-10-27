@@ -2,10 +2,10 @@ package com.iwEmailSender.iwemailsender.Mappers;
 
 import com.iwEmailSender.iwemailsender.Dto.Output.AccountDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.AccountDtoInset;
+import com.iwEmailSender.iwemailsender.Dto.Output.RepetitionDto;
 import com.iwEmailSender.iwemailsender.Model.Account;
-import com.iwEmailSender.iwemailsender.Model.Repetision;
+import com.iwEmailSender.iwemailsender.Model.Repetition;
 import com.iwEmailSender.iwemailsender.Model.Role;
-import com.iwEmailSender.iwemailsender.Dto.Output.RepetisionDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import java.util.List;
@@ -21,10 +21,10 @@ public interface AccountMapper {
         return roles.stream().map(Role::getRoleName).collect(Collectors.toList());
     }
     Account mapDtoInsertToAccount(AccountDtoInset accountDtoInset);
-    default Repetision map(RepetisionDto repetisionDto) {
-        if (repetisionDto == null) return null;
-        Repetision r = new Repetision();
-        r.setRepetisionName(repetisionDto.getRepetisionName());
+    default Repetition map(RepetitionDto repetitionDto) {
+        if (repetitionDto == null) return null;
+        Repetition r = new Repetition();
+        r.setRepetitionName(repetitionDto.getRepetitionName());
         return r;
     }
 

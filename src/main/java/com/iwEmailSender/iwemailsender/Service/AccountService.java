@@ -14,6 +14,8 @@ import com.iwEmailSender.iwemailsender.Model.Role;
 import com.iwEmailSender.iwemailsender.Repository.AccountRepository;
 import com.iwEmailSender.iwemailsender.Repository.RoleRepository;
 import org.apache.coyote.BadRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,6 +31,8 @@ import java.util.UUID;
 
 @Service
 public class AccountService implements UserDetailsService {
+
+    private static final Logger logger= LoggerFactory.getLogger(AccountService.class);
 
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
@@ -78,12 +82,15 @@ public class AccountService implements UserDetailsService {
             if (EmailValidator.getInstance().isValid(accountRoleDtoInsert.getEmail()) && !accountRoleDtoInsert.getEmail().isEmpty()) {
 //                Account account = AccountRoleMapper.INSTANCE.mapDtoInsertToAccount(accountRoleDtoInsert);// Mapping from AccountDtoInsert to Account
                 if(accountRoleDtoInsert.getFirstName().isEmpty()){
+                    logger.error("Field for name cannot be empty!");
                     throw new BadRequestException("Field for name cannot be empty!");
                 }
                 if(accountRoleDtoInsert.getLastName().isEmpty()){
+                    logger.error("Field for last name cannot be empty!");
                     throw new BadRequestException("Field for last name cannot be empty!");
                 }
                 if(accountRoleDtoInsert.getPassword().isEmpty()){
+                    logger.error("Field for password cannot be empty!");
                     throw new BadRequestException("Field for password cannot be empty!");
                 }
                 Account account = new Account();
@@ -119,21 +126,28 @@ public class AccountService implements UserDetailsService {
                                 }
                                 account.getRoles().add(role);
                             } else {
+                                logger.error("Account already have that role!");
                                 throw new AlreadyExistsException("Account already have that role!");
                             }
 
                         } else {
+                            logger.error("The role is not in the Database!");
                             throw new ResourceNotFoundException("The role is not in the Database!");
                         }
 
                     }
                 }
+
+                logger.info("Successfully added account!");
+
                 accountRepository.save(account);
             } else {
+                logger.error("Email is not valid!");
                 throw new IllegalArgumentException("Email is not valid!");
             }
 
         } else {
+            logger.error("Email already in use!");
             throw new AlreadyExistsException("Email already in use!");
         }
     }
@@ -142,12 +156,15 @@ public class AccountService implements UserDetailsService {
         if (!accountRepository.existsAccountByEmail(accountDtoInset.getEmail())) {
             if (EmailValidator.getInstance().isValid(accountDtoInset.getEmail()) && !accountDtoInset.getEmail().isEmpty()) {
                 if(accountDtoInset.getFirstName().isEmpty()){
+                    logger.error("Field for name cannot be empty!");
                     throw new BadRequestException("Field for name cannot be empty!");
                 }
                 if(accountDtoInset.getLastName().isEmpty()){
+                    logger.error("Field for last name cannot be empty!");
                     throw new BadRequestException("Field for last name cannot be empty!");
                 }
                 if(accountDtoInset.getPassword().isEmpty()){
+                    logger.error("Field for password cannot be empty!");
                     throw new BadRequestException("Field for password cannot be empty!");
                 }
                 Account account = AccountMapper.INSTANCE.mapDtoInsertToAccount(accountDtoInset); // Mapping from AccountDtoInsert to Account
@@ -165,12 +182,15 @@ public class AccountService implements UserDetailsService {
                     role.getList_of_accounts().add(account);
                 }
                 account.getRoles().add(role);
+                logger.info("Account added successfully!");
                 accountRepository.save(account);
             } else {
+                logger.error("Email is not valid!");
                 throw new IllegalArgumentException("Email is not valid!");
             }
 
         } else {
+            logger.error("Email already in use!");
             throw new AlreadyExistsException("Email already in use!");
         }
 
@@ -188,12 +208,17 @@ public class AccountService implements UserDetailsService {
                 if (!role1.getList_of_accounts().contains(account)) {
                     role1.getList_of_accounts().add(account);
                 }
+
+                logger.info("Role added successfully to account!");
+
                 accountRepository.save(account);
             } else {
+                logger.error("Account already have that role!");
                 throw new AlreadyExistsException("Account already have that role!");
             }
 
         } else {
+            logger.error("The role is not in the Database!");
             throw new ResourceNotFoundException("The role is not in the Database!");
         }
     }
@@ -213,14 +238,17 @@ public class AccountService implements UserDetailsService {
                 if (!accountRepository.findAll().contains(accountRepository.findByEmail(accountDtoInset.getEmail()))) {
                     editAcc.setEmail(accountDtoInset.getEmail());
                 } else {
+                    logger.error("Email is used for another user!");
                     throw new AlreadyExistsException("Email is used for another user!");
                 }
             }
             if (!accountDtoInset.getPassword().equals(editAcc.getPassword())) {
                 editAcc.setPassword(myPasswordEncoder.bCryptPasswordEncoder(accountDtoInset.getPassword()));
             }
+            logger.info("Account successfully edited!");
             accountRepository.save(editAcc);
         } else {
+            logger.error("Account not found in Database!");
             throw new ResourceNotFoundException("Account not found in Database!");
         }
     }
@@ -230,8 +258,10 @@ public class AccountService implements UserDetailsService {
             Account account = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account can't be found!"));
             account.getRoles().forEach(role -> role.getList_of_accounts().remove(account));
             account.getRoles().clear();
+            logger.info("Account successfully deleted!");
             accountRepository.delete(account);
         } else {
+            logger.error("Account can't be found!");
             throw new ResourceNotFoundException("Account can't be found!");
         }
     }
@@ -239,10 +269,15 @@ public class AccountService implements UserDetailsService {
 
     public void deleteAllAccounts() {
         if (!accountRepository.findAll().isEmpty()) {
-            for (Account account : accountRepository.findAll()) {
-                deleteAccount(account.getId());
+            for (Account accountTemp : accountRepository.findAll()) {
+                Account account = accountRepository.findById(accountTemp.getId()).orElseThrow(() -> new ResourceNotFoundException("Account can't be found!"));
+                account.getRoles().forEach(role -> role.getList_of_accounts().remove(account));
+                account.getRoles().clear();
+                logger.info("Deleted all accounts!");
+                accountRepository.delete(account);
             }
         } else {
+            logger.error("No accounts in Database!");
             throw new ResourceNotFoundException("No accounts in Database!");
         }
     }

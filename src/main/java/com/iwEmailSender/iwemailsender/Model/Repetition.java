@@ -7,22 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 @Entity
-@Table(name = "repetision")
-public class Repetision {
+@Table(name = "repetition")
+public class Repetition {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "repetision_seq_gen")
-    @SequenceGenerator(name = "repetision_seq_gen",sequenceName = "repetision_seq",allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "repetition_seq_gen")
+    @SequenceGenerator(name = "repetition_seq_gen",sequenceName = "repetition_seq",allocationSize = 1)
     @Column(name = "id")
     private long id;
     @Column(name = "uuid")
     private UUID uuid;
-    @Column(name = "repetision_name")
-    private String repetisionName;
+    @Column(name = "repetition_name")
+    private String repetitionName;
     @Column(name = "in_hours")
     private Integer inHours;
 
 
-    @OneToMany(mappedBy = "repetision",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "repetition",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<EmailJob> listOfEmailJobs= new ArrayList<>();
 
     public long getId() {
@@ -41,12 +41,12 @@ public class Repetision {
         this.uuid = uuid;
     }
 
-    public String getRepetisionName() {
-        return repetisionName;
+    public String getRepetitionName() {
+        return repetitionName;
     }
 
-    public void setRepetisionName(String repetisionName) {
-        this.repetisionName = repetisionName;
+    public void setRepetitionName(String repetitionName) {
+        this.repetitionName = repetitionName;
     }
 
     public Integer getInHours() {
@@ -67,6 +67,6 @@ public class Repetision {
 
     @Override
     public String toString() {
-        return repetisionName ;
+        return repetitionName ;
     }
 }

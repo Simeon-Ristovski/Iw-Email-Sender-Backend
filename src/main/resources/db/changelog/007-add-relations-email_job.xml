@@ -6,12 +6,12 @@
     <changeSet id="7" author="Simeon">
         <addColumn tableName="email_job">
             <column name="id_account" type="BIGINT"></column>
-            <column name="id_repetision" type="BIGINT"></column>
+            <column name="id_repetition" type="BIGINT"></column>
             <column name="id_status" type="BIGINT"></column>
         </addColumn>
         <rollback>
             <dropColumn tableName="email_job" columnName="id_account"/>
-            <dropColumn tableName="email_job" columnName="id_repetision"/>
+            <dropColumn tableName="email_job" columnName="id_repetition"/>
             <dropColumn tableName="email_job" columnName="id_status"/>
 
         </rollback>
@@ -24,9 +24,9 @@
                                  referencedTableName="account"
                                  referencedColumnNames="id"/>
 
-        <addForeignKeyConstraint baseTableName="email_job" baseColumnNames="id_repetision"
-                                 constraintName="fk_emailjob_repetision"
-                                 referencedTableName="repetision"
+        <addForeignKeyConstraint baseTableName="email_job" baseColumnNames="id_repetition"
+                                 constraintName="fk_emailjob_repetition"
+                                 referencedTableName="repetition"
                                  referencedColumnNames="id"/>
         <addForeignKeyConstraint baseTableName="email_job" baseColumnNames="id_status"
                                  constraintName="fk_emailjob_status"
@@ -35,7 +35,7 @@
 
         <rollback>
             <dropForeignKeyConstraint baseTableName="email_job" constraintName="fk_emailjob_account"/>
-            <dropForeignKeyConstraint baseTableName="email_job" constraintName="fk_emailjob_repetision"/>
+            <dropForeignKeyConstraint baseTableName="email_job" constraintName="fk_emailjob_repetition"/>
             <dropForeignKeyConstraint baseTableName="email_job" constraintName="fk_emailjob_status"/>
         </rollback>
     </changeSet>

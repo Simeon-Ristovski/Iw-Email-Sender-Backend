@@ -24,9 +24,9 @@
         </rollback>
     </changeSet>
     <changeSet id="14" author="Simeon">
-        <createSequence sequenceName="repetision_seq" startValue="1" incrementBy="1"/>
+        <createSequence sequenceName="repetition_seq" startValue="1" incrementBy="1"/>
         <rollback>
-            <dropSequence sequenceName="repetision_seq"/>
+            <dropSequence sequenceName="repetition_seq"/>
         </rollback>
     </changeSet>
     <changeSet id="15" author="Simeon">
@@ -42,11 +42,11 @@
         </rollback>
     </changeSet>
     <changeSet id="17" author="Simeon">
-        <sql>ALTER SEQUENCE repetision_seq RESTART WITH 6;</sql>
+        <sql>ALTER SEQUENCE repetition_seq RESTART WITH 6;</sql>
         <sql>ALTER SEQUENCE role_seq RESTART WITH 3;</sql>
         <sql>ALTER SEQUENCE status_seq RESTART WITH 3;</sql>
         <rollback>
-            <sql>ALTER SEQUENCE repetision_seq RESTART WITH 1;</sql>
+            <sql>ALTER SEQUENCE repetition_seq RESTART WITH 1;</sql>
             <sql>ALTER SEQUENCE role_seq RESTART WITH 1;</sql>
             <sql>ALTER SEQUENCE status_seq RESTART WITH 1;</sql>
         </rollback>

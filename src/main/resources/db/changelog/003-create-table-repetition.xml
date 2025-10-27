@@ -5,21 +5,21 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
     <changeSet id="3" author="Simeon">
-        <createTable tableName="repetision">
+        <createTable tableName="repetition">
             <column name="id"  type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="true"/>
             </column>
             <column name="uuid" type="UUID" defaultValueComputed="gen_random_uuid()">
                 <constraints nullable="true"/>
             </column>
-            <column name="repetision_name" type="VARCHAR(255)">
+            <column name="repetition_name" type="VARCHAR(255)">
                 <constraints nullable="true"/>
             </column>
             <column name="in_hours" type="INTEGER"/>
 
         </createTable>
         <rollback>
-            <dropTable tableName="repetision"/>
+            <dropTable tableName="repetition"/>
         </rollback>
 
     </changeSet>

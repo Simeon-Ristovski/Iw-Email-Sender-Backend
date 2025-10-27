@@ -45,8 +45,8 @@ public class EmailJob {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_repetision")
-    private Repetision repetision;
+    @JoinColumn(name = "id_repetition")
+    private Repetition repetition;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_status")
@@ -155,12 +155,12 @@ public class EmailJob {
         this.timeToSent = timeToSent;
     }
 
-    public Repetision getRepetision() {
-        return repetision;
+    public Repetition getRepetition() {
+        return repetition;
     }
 
-    public void setRepetision(Repetision repetision) {
-        this.repetision = repetision;
+    public void setRepetition(Repetition repetition) {
+        this.repetition = repetition;
     }
 
     public Status getStatus() {
@@ -261,7 +261,7 @@ public class EmailJob {
                 ", set_by=" + set_by +
                 ", dateSend=" + dateSend +
                 ", dateDue=" + dateDue +
-                ", repetision=" + repetision +
+                ", repetition=" + repetition +
                 ", status=" + status +
                 ", createdAt=" + createdAt +
                 ", modifyAt=" + modifyAt +

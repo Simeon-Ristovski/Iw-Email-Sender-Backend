@@ -2,16 +2,16 @@ package com.iwEmailSender.iwemailsender.Dto.Input;
 
 
 
-public class RepetisionDtoInsert {
-    private String repetisionName;
+public class RepetitionDtoInsert {
+    private String repetitionName;
     private Integer inHours;
 
-    public String getRepetisionName() {
-        return repetisionName;
+    public String getRepetitionName() {
+        return repetitionName;
     }
 
-    public void setRepetisionName(String repetisionName) {
-        this.repetisionName = repetisionName;
+    public void setRepetitionName(String repetitionName) {
+        this.repetitionName = repetitionName;
     }
 
     public Integer getInHours() {

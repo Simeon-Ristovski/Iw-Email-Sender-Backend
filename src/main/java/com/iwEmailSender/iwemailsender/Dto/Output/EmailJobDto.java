@@ -15,7 +15,7 @@ public class EmailJobDto {
     private LocalDateTime dateSend;
     private LocalDateTime dateDue;
     private LocalTime timeToSent;
-    private String repetision;
+    private String repetition;
     private String status;
     private String repetititve;
     private String state;
@@ -92,12 +92,12 @@ public class EmailJobDto {
         this.timeToSent = timeToSent;
     }
 
-    public String getRepetision() {
-        return repetision;
+    public String getRepetition() {
+        return repetition;
     }
 
-    public void setRepetision(String repetision) {
-        this.repetision = repetision;
+    public void setRepetition(String repetition) {
+        this.repetition = repetition;
     }
 
     public String getStatus() {
