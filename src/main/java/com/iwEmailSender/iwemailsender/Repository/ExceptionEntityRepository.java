@@ -14,6 +14,7 @@ import java.util.UUID;
 public interface ExceptionEntityRepository extends JpaRepository<ExceptionEntity,Long> {
 
     ExceptionEntity findByUuid(UUID uuid);
+    boolean existsByUuid(UUID uuid);
     @Query("select e from ExceptionEntity as e where e.id_job= :id order by e.dateOfException desc ")
     List<ExceptionEntity> findTopById_jobOrderByDateOfExceptionDesc(@Param("id")Long id );
 }

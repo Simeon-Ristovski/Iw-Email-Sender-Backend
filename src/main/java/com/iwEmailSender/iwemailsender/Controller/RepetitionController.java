@@ -1,5 +1,6 @@
 package com.iwEmailSender.iwemailsender.Controller;
 
+import com.iwEmailSender.iwemailsender.Dto.Output.EmailJobDto;
 import com.iwEmailSender.iwemailsender.Dto.Output.RepetitionDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.RepetitionDtoInsert;
 import com.iwEmailSender.iwemailsender.Service.RepetitionService;
@@ -22,13 +23,14 @@ public class RepetitionController {
     }
 
     @GetMapping("")
-    public List<RepetitionDto> findAllDto(){
-        return repetitionService.findAll();
+    public ResponseEntity<List<RepetitionDto>> findAll() {
+        List<RepetitionDto> list= repetitionService.findAll();
+        return new ResponseEntity<>(list,HttpStatus.OK);
     }
-
     @GetMapping("/{id}")
-    public RepetitionDto findByIdDto(@PathVariable Long id){
-        return repetitionService.findById(id);
+    public ResponseEntity<RepetitionDto> findById(@PathVariable Long id) {
+        RepetitionDto repetitionDto= repetitionService.findById(id);
+        return new ResponseEntity<>(repetitionDto,HttpStatus.OK);
     }
 
     @PostMapping("")

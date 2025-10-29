@@ -24,12 +24,14 @@ public class AccountController {
     }
 
     @GetMapping("")
-    public List<AccountDto> findAll() {
-        return accountService.findAll();
+    public ResponseEntity<List<AccountDto>> findAll() {
+        List<AccountDto> list=accountService.findAll();
+        return new ResponseEntity<>(list,HttpStatus.OK);
     }
     @GetMapping("/{id}")
-    public AccountDto findById(@PathVariable Long id) {
-        return accountService.findById(id);
+    public ResponseEntity<AccountDto> findById(@PathVariable Long id) {
+        AccountDto accountDto= accountService.findById(id);
+        return new ResponseEntity<>(accountDto,HttpStatus.OK);
     }
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")

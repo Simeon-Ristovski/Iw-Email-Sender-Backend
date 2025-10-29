@@ -1,5 +1,6 @@
 package com.iwEmailSender.iwemailsender.Controller;
 
+import com.iwEmailSender.iwemailsender.Dto.Output.RepetitionDto;
 import com.iwEmailSender.iwemailsender.Dto.Output.RoleDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.RoleDtoInser;
 import com.iwEmailSender.iwemailsender.Service.RoleService;
@@ -20,15 +21,15 @@ public class RoleController {
         this.roleService = roleService;
     }
 
-
     @GetMapping("")
-    public List<RoleDto> findAll(){
-        return roleService.findAll();
+    public ResponseEntity<List<RoleDto>> findAll() {
+        List<RoleDto> list= roleService.findAll();
+        return new ResponseEntity<>(list,HttpStatus.OK);
     }
-
     @GetMapping("/{id}")
-    public RoleDto findById(@PathVariable Long id){
-        return roleService.findById(id);
+    public ResponseEntity<RoleDto> findById(@PathVariable Long id) {
+        RoleDto roleDto= roleService.findById(id);
+        return new ResponseEntity<>(roleDto,HttpStatus.OK);
     }
 
     @PostMapping("")

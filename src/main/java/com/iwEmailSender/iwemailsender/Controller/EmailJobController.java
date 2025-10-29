@@ -3,6 +3,7 @@ package com.iwEmailSender.iwemailsender.Controller;
 import com.iwEmailSender.iwemailsender.Dto.Input.EmailJobTimeToSendNextInsertDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.IsActiveInsert;
 import com.iwEmailSender.iwemailsender.Dto.Input.MaxNumOfTriesInsert;
+import com.iwEmailSender.iwemailsender.Dto.Output.AccountDto;
 import com.iwEmailSender.iwemailsender.Dto.Output.EmailJobDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.EmailJobDtoInsert;
 import com.iwEmailSender.iwemailsender.Service.EmailJobService;
@@ -24,13 +25,14 @@ public class EmailJobController {
     }
 
     @GetMapping("")
-    public List<EmailJobDto> findAll() {
-        return emailJobService.findAll();
+    public ResponseEntity<List<EmailJobDto>> findAll() {
+        List<EmailJobDto> list= emailJobService.findAll();
+        return new ResponseEntity<>(list,HttpStatus.OK);
     }
-
     @GetMapping("/{id}")
-    public EmailJobDto fingById(@PathVariable Long id) {
-        return emailJobService.findById(id);
+    public ResponseEntity<EmailJobDto> findById(@PathVariable Long id) {
+        EmailJobDto emailJobDto= emailJobService.findById(id);
+        return new ResponseEntity<>(emailJobDto,HttpStatus.OK);
     }
 
     @PostMapping("/account_id/{id}")

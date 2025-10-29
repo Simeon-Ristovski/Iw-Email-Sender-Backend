@@ -1,5 +1,6 @@
 package com.iwEmailSender.iwemailsender.Controller;
 
+import com.iwEmailSender.iwemailsender.Dto.Output.EmailJobDto;
 import com.iwEmailSender.iwemailsender.Dto.Output.ExeceptionEntityDto;
 import com.iwEmailSender.iwemailsender.Service.ExceptionEntityService;
 import org.springframework.http.HttpStatus;
@@ -17,22 +18,21 @@ public class ExceptionEntityController {
     public ExceptionEntityController(ExceptionEntityService exceptionEntityService) {
         this.exceptionEntityService = exceptionEntityService;
     }
-
-    @GetMapping("/{uuid}")
-    public ExeceptionEntityDto findByUuid(@PathVariable UUID uuid){
-        return exceptionEntityService.findByUuid(uuid);
+    @GetMapping("")
+    public ResponseEntity<List<ExeceptionEntityDto>> findAll() {
+        List<ExeceptionEntityDto> list= exceptionEntityService.findAllExceptions();
+        return new ResponseEntity<>(list,HttpStatus.OK);
     }
-
-    @GetMapping()
-    public List<ExeceptionEntityDto> findAll(){
-        return exceptionEntityService.findAllExcepitons();
+    @GetMapping("/{uuid}")
+    public ResponseEntity<ExeceptionEntityDto> findByUuid(@PathVariable UUID uuid) {
+        ExeceptionEntityDto execeptionEntityDto= exceptionEntityService.findByUuid(uuid);
+        return new ResponseEntity<>(execeptionEntityDto,HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteExceptio(@PathVariable Long id){
-            exceptionEntityService.deletException(id);
+    public ResponseEntity<String> deleteException(@PathVariable Long id){
+            exceptionEntityService.deleteException(id);
         return new ResponseEntity<>("Exception deleted from Database", HttpStatus.CREATED);
-
     }
     @DeleteMapping()
     public ResponseEntity<String> deleteAllExceptions() {

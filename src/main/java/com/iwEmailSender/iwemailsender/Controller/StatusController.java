@@ -1,5 +1,6 @@
 package com.iwEmailSender.iwemailsender.Controller;
 
+import com.iwEmailSender.iwemailsender.Dto.Output.RepetitionDto;
 import com.iwEmailSender.iwemailsender.Dto.Output.StatusDto;
 import com.iwEmailSender.iwemailsender.Dto.Input.StatusDtoInsert;
 
@@ -22,12 +23,14 @@ public class StatusController {
     }
 
     @GetMapping("")
-    public List<StatusDto> findAllDto(){
-        return statusService.findAll();
+    public ResponseEntity<List<StatusDto>> findAll() {
+        List<StatusDto> list= statusService.findAll();
+        return new ResponseEntity<>(list,HttpStatus.OK);
     }
     @GetMapping("/{id}")
-    public StatusDto findByIdDto(@PathVariable Long id){
-        return statusService.findById(id);
+    public ResponseEntity<StatusDto> findById(@PathVariable Long id) {
+        StatusDto statusDto= statusService.findById(id);
+        return new ResponseEntity<>(statusDto,HttpStatus.OK);
     }
 
     @PostMapping("")

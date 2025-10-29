@@ -21,11 +21,15 @@ public class ExceptionEntityService {
         this.exceptionEntityRepository = exceptionEntityRepository;
     }
     public ExeceptionEntityDto findByUuid(UUID uuid){
-        ExceptionEntity exceptionEntity=exceptionEntityRepository.findByUuid(uuid);
-        return ExceptionEntityMapper.INSTANCE.mapExceptionEntityToDto(exceptionEntity);
+        if(exceptionEntityRepository.existsByUuid(uuid)){
+            ExceptionEntity exceptionEntity=exceptionEntityRepository.findByUuid(uuid);
+            return ExceptionEntityMapper.INSTANCE.mapExceptionEntityToDto(exceptionEntity);
+        }else {
+         throw new ResourceNotFoundException("The exception with that id doesn't exist in Database!");
+        }
     }
 
-    public List<ExeceptionEntityDto> findAllExcepitons() {
+    public List<ExeceptionEntityDto> findAllExceptions() {
         List<ExeceptionEntityDto> list = new ArrayList<>();
         for (ExceptionEntity exception : exceptionEntityRepository.findAll()) {
             list.add(ExceptionEntityMapper.INSTANCE.mapExceptionEntityToDto(exception));
@@ -33,7 +37,7 @@ public class ExceptionEntityService {
         return list;
     }
 
-    public void deletException(Long id){
+    public void deleteException(Long id){
         if (exceptionEntityRepository.existsById(id)) {
             exceptionEntityRepository.delete(exceptionEntityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("The exception with that id doesn't exist in Database!")));
         } else {
@@ -44,7 +48,7 @@ public class ExceptionEntityService {
     public void deleteAllExceptions(){
         if (!exceptionEntityRepository.findAll().isEmpty()) {
             for (ExceptionEntity exception : exceptionEntityRepository.findAll()) {
-                deletException(exception.getId());
+                deleteException(exception.getId());
             }
         }else {
             throw new ResourceNotFoundException("No exceptions in Database!");
