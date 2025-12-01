@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface AccountRoleMapper {
-
     AccountRoleMapper INSTANCE = Mappers.getMapper(AccountRoleMapper.class);
     Account mapDtoInsertToAccount(AccountRoleDtoInsert accountRoleDtoInsert);
     default List<Role> map(List<String> roleNames) {
@@ -24,6 +23,4 @@ public interface AccountRoleMapper {
                 })
                 .collect(Collectors.toList());
     }
-
-
 }

@@ -7,7 +7,6 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface ExceptionEntityMapper {
-
     ExceptionEntityMapper INSTANCE= Mappers.getMapper(ExceptionEntityMapper.class);
     ExeceptionEntityDto mapExceptionEntityToDto(ExceptionEntity exception);
 }

@@ -1,8 +1,6 @@
 package com.iwEmailSender.iwemailsender.Model;
 
-
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,42 +16,32 @@ public class Status {
     private UUID uuid;
     @Column(name = "status_name")
     private String statusName;
-
     @OneToMany(mappedBy = "status",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<EmailJob> listOfEmailJobs= new ArrayList<>();
-
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public UUID getUuid() {
         return uuid;
     }
-
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
-
     public String getStatusName() {
         return statusName;
     }
-
     public void setStatusName(String statusName) {
         this.statusName = statusName;
     }
-
     public List<EmailJob> getListOfEmailJobs() {
         return listOfEmailJobs;
     }
-
     public void setListOfEmailJobs(List<EmailJob> listOfEmailJobs) {
         this.listOfEmailJobs = listOfEmailJobs;
     }
-
     @Override
     public String toString() {
         return statusName ;

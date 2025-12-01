@@ -35,8 +35,6 @@ public class EmailJobService {
     private final JavaMailSender mailSender;
     private final EmailSenderService emailSenderService;
     private Boolean enable = false;
-
-
     public EmailJobService(EmailJobRepository emailJobRepository, AccountRepository accountRepository, StatusRepository statusRepository, RepetitionRepository repetitionRepository, ExceptionEntityRepository exceptionEntityRepository, JavaMailSender mailSender, EmailSenderService emailSenderService) {
         this.emailJobRepository = emailJobRepository;
         this.accountRepository = accountRepository;
@@ -46,8 +44,6 @@ public class EmailJobService {
         this.mailSender = mailSender;
         this.emailSenderService = emailSenderService;
     }
-
-
     public List<EmailJobDto> findAll() {
         List<EmailJobDto> list = new ArrayList<>();
         for (EmailJob job : emailJobRepository.findAll()) {
@@ -56,22 +52,29 @@ public class EmailJobService {
         }
         return list;
     }
-
     public EmailJobDto findById(Long id) {
         return EmailJobMapper.INSTANCE.mapEmailJobToDto(emailJobRepository.findById(id).orElseThrow());
     }
-
-    public void addEmailJob(Long id_acc, EmailJobDtoInsert emailJobDtoInsert) throws BadRequestException {
-        if (accountRepository.existsAccountById(id_acc)) {
+    public List<EmailJobDto> findAllForAcc(UUID uuid){
+        Account account=accountRepository.findByUuid(uuid);
+        List<EmailJobDto> list = new ArrayList<>();
+        for (EmailJob job : emailJobRepository.findJobsByAccountId(account.getId())) {
+            EmailJobDto emailJobDto = EmailJobMapper.INSTANCE.mapEmailJobToDto(job);
+            list.add(emailJobDto);
+        }
+        return list;
+    }
+    public void addEmailJob(UUID id_acc, EmailJobDtoInsert emailJobDtoInsert) throws BadRequestException {
+        if (accountRepository.existsByUuid(id_acc)) {
             if (!emailJobDtoInsert.getDateSend().isBefore(LocalDate.now().atStartOfDay())) {
                 if (!emailJobDtoInsert.getDateDue().isBefore(LocalDateTime.now())) {
-                    Account account = accountRepository.findById(id_acc).orElseThrow(() -> new ResourceNotFoundException("The account with that id doesn't exist in Database!"));
+                    Account account = accountRepository.findByUuid(id_acc);
                     Status status = statusRepository.findByStatusName("FAILED");
                     EmailJob job = EmailJobMapper.INSTANCE.mapDtoInsertToEmailJob(emailJobDtoInsert);
                     job.setEmailFrom("bezbednostinformaciska@gmail.com");
                     job.setUuid(UUID.randomUUID());
                     job.setSet_by(account);
-                    job.setMaxNumOfTrys(3); //Change to 3
+                    job.setMaxNumOfTrys(3);
                     job.setNumOfFailedTrys(0);
                     job.setCreatedAt(LocalDateTime.now());
                     job.setCreatedBy(account.getFirstName());
@@ -82,8 +85,8 @@ public class EmailJobService {
                     job.setActive(true);
 
                     job.setRepetition(repetitionRepository.findByRepetitionName(job.getRepetition().toString()));
-                    LocalDateTime dateTime = job.getDateSend();    // LocalDateTime
-                    LocalTime time = job.getTimeToSent();          // LocalTime
+                    LocalDateTime dateTime = job.getDateSend();
+                    LocalTime time = job.getTimeToSent();
                     job.setNextSendTime(LocalDateTime.of(dateTime.toLocalDate(), time));
 
                     logger.info("Email successfully added!");
@@ -102,9 +105,8 @@ public class EmailJobService {
             throw new ResourceNotFoundException("The account with that id doesn't exist in Database!");
         }
     }
-
-    public void editMaxNumOfTrys(Long id, MaxNumOfTriesInsert maxNumOfTriesInsert) throws BadRequestException {
-        EmailJob emailJob = emailJobRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("The email job with that id doesn't exist in Database!"));
+    public void editMaxNumOfTrys(UUID id, MaxNumOfTriesInsert maxNumOfTriesInsert) throws BadRequestException {
+        EmailJob emailJob = emailJobRepository.findByUuid(id);
         if (maxNumOfTriesInsert.getMaxNumOfTrys() != null) {
             if (maxNumOfTriesInsert.getMaxNumOfTrys() > 0 && maxNumOfTriesInsert.getMaxNumOfTrys() <= 5) {
                 emailJob.setMaxNumOfTrys(maxNumOfTriesInsert.getMaxNumOfTrys());
@@ -124,7 +126,6 @@ public class EmailJobService {
 
 
     }
-
     public EmailJob copyEmailJob(EmailJob emailJob, EmailJob job) {
         Status status = statusRepository.findById(2L).orElseThrow(() -> new ResourceNotFoundException("The status with that id doesn't exist in Database!"));
         emailJob.setStatus(status);
@@ -140,15 +141,15 @@ public class EmailJobService {
         emailJob.setRepetitive(job.getRepetitive());
         return emailJob;
     }
+    public void editEmailJob(UUID uuid_acc, UUID id_email, EmailJobDtoInsert jobDtoInsert) throws BadRequestException {
 
-    public void editEmailJob(Long id_acc, Long id_email, EmailJobDtoInsert jobDtoInsert) throws BadRequestException {
-        if (emailJobRepository.existsById(id_email)) {
-            EmailJob emailJob = emailJobRepository.findById(id_email).orElseThrow(() -> new ResourceNotFoundException("The email job with that id doesn't exist in Database!"));
-            if (accountRepository.existsAccountById(id_acc)) {
+        if (emailJobRepository.existsByUuid(id_email)) {
+            EmailJob emailJob = emailJobRepository.findByUuid(id_email);
+            if (accountRepository.existsByUuid(uuid_acc)) {
                 if (!jobDtoInsert.getDateSend().isBefore(LocalDate.now().atStartOfDay())) {
                     if (!jobDtoInsert.getDateDue().isBefore(LocalDateTime.now())) {
                         EmailJob job = EmailJobMapper.INSTANCE.mapDtoInsertToEmailJob(jobDtoInsert);
-                        Account account = accountRepository.findById(id_acc).orElseThrow(() -> new ResourceNotFoundException("The account with that id doesn't exist in Database!"));
+                        Account account = accountRepository.findByUuid(uuid_acc);
                         emailJob.setModifyAt(LocalDateTime.now());
                         job.setEmailFrom("bezbednostinformaciska@gmail.com");
                         emailJob.setModifyBy(account.getFirstName());
@@ -158,7 +159,7 @@ public class EmailJobService {
                         LocalTime time = job.getTimeToSent();
                         emailJob.setNextSendTime(LocalDateTime.of(dateTime.toLocalDate(), time));
                         emailJob.setState(State.ENABLE);
-                        emailJob.setRepetition(repetitionRepository.findByRepetitionName(jobDtoInsert.getRepetition().getRepetitionName()));
+                        emailJob.setRepetition(repetitionRepository.findByRepetitionName(jobDtoInsert.getRepetition()));
                         emailJob.setActive(true);
 
                         logger.info("Email successfully edited!");
@@ -182,17 +183,13 @@ public class EmailJobService {
             throw new ResourceNotFoundException("The job with that id doesn't exist in Database!");
         }
     }
-
-    /**
-     * If you want to repeat the same email with the same parameters
-     */
-    public void repeatTheSameEmailJob(long id_acc, long id_job, EmailJobTimeToSendNextInsertDto emailJobTimeToSendNextInsertDto) throws BadRequestException {
-        if (emailJobRepository.existsById(id_job)) {
-            EmailJob original = emailJobRepository.findById(id_job).orElseThrow(() -> new ResourceNotFoundException("The email job with that id doesn't exist in Database!"));
-            if (accountRepository.existsAccountById(id_acc)) {
+    public void repeatTheSameEmailJob(UUID uuid_acc, UUID id_job, EmailJobTimeToSendNextInsertDto emailJobTimeToSendNextInsertDto) throws BadRequestException {
+        if (emailJobRepository.existsByUuid(id_job)) {
+            EmailJob original = emailJobRepository.findByUuid(id_job);
+            if (accountRepository.existsByUuid(uuid_acc)) {
                 if (!emailJobTimeToSendNextInsertDto.getDateSend().isBefore(LocalDate.now().atStartOfDay())) {
                     if (!emailJobTimeToSendNextInsertDto.getDateDue().isBefore(LocalDateTime.now())) {
-                        Account account = accountRepository.findById(id_acc).orElseThrow(() -> new ResourceNotFoundException("The account with that id doesn't exist in Database!"));
+                        Account account = accountRepository.findByUuid(uuid_acc);
 
                         EmailJob copy = new EmailJob();
 
@@ -212,8 +209,8 @@ public class EmailJobService {
                         copy.setMaxNumOfTrys(3);
                         copy.setNumOfFailedTrys(original.getNumOfFailedTrys());
                         copy.setActive(true);
-                        LocalDateTime dateTime = copy.getDateSend();    // LocalDateTime
-                        LocalTime time = copy.getTimeToSent();          // LocalTime
+                        LocalDateTime dateTime = copy.getDateSend();
+                        LocalTime time = copy.getTimeToSent();
                         copy.setNextSendTime(LocalDateTime.of(dateTime.toLocalDate(), time));
 
                         logger.info("Email successfully repeated!");
@@ -221,11 +218,11 @@ public class EmailJobService {
                         emailJobRepository.save(copy);
                     } else {
                         logger.error("Date due is in the past!");
-                        throw new BadRequestException("Date due is in the past!");
+                        throw new IllegalArgumentException("Date due is in the past!");
                     }
                 } else {
                     logger.error("Date send is in the past!");
-                    throw new BadRequestException("Date send is in the past!");
+                    throw new IllegalArgumentException("Start date is in the past!");
                 }
 
             } else {
@@ -239,11 +236,10 @@ public class EmailJobService {
         }
 
     }
+    public void deleteEmailJob(UUID id) {
 
-
-    public void deleteEmailJob(Long id) {
-        if (emailJobRepository.existsById(id)) {
-            EmailJob emailJob = emailJobRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("The email job with that id doesn't exist in Database!"));
+        if (emailJobRepository.existsByUuid(id)) {
+            EmailJob emailJob = emailJobRepository.findByUuid(id);
             logger.info("Email successfully deleted!");
             emailJobRepository.delete(emailJob);
         } else {
@@ -251,7 +247,6 @@ public class EmailJobService {
             throw new ResourceNotFoundException("The job with that id doesn't exist in Database!");
         }
     }
-
     public void deleteAllEmailJobs() {
         if (!emailJobRepository.findAll().isEmpty()) {
             for (EmailJob emailJob : emailJobRepository.findAll()) {
@@ -265,23 +260,25 @@ public class EmailJobService {
             throw new ResourceNotFoundException("No email jobs in Database!");
         }
     }
-
+    public void deleteAllForAcc(UUID uuid){
+        Account account=accountRepository.findByUuid(uuid);
+        for (EmailJob job : emailJobRepository.findJobsByAccountId(account.getId())) {
+           emailJobRepository.delete(job);
+        }
+    }
     public void enableScheduler() {
         enable = true;
     }
-
     public void disableScheduler() {
         enable = false;
     }
-
     public void enableOrDisabled() {
         if (!enable) {
             enable = true;
         }
     }
-
-    public void setJobActiveOrDeactive(Long id, IsActiveInsert isActiveInsert) {
-        EmailJob emailJob = emailJobRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Email job with id:" + id + " doesn't exist in Database!"));
+    public void setJobActiveOrDeactive(UUID uuid, IsActiveInsert isActiveInsert) {
+        EmailJob emailJob = emailJobRepository.findByUuid(uuid);
         if (isActiveInsert.getActive() == null) {
             throw new IllegalArgumentException("Invalid argument: status must be 'true' or 'false'");
         }
@@ -294,15 +291,11 @@ public class EmailJobService {
         }
         emailJobRepository.save(emailJob);
     }
-
-
     @Scheduled(fixedDelay = 60000)
     @Transactional
     public void sendEmail() throws Exception {
         if (!enable) return;
-
         logger.info("A minute has passed!");
-
         List<EmailJob> list = emailJobRepository.findEmailJobsForSendingNow(LocalDateTime.now(), LocalDateTime.now().plusMinutes(1));
         List<Account> administratorsList = accountRepository.findAllAdministrators();
         for (EmailJob emailJob : list) {
@@ -313,9 +306,7 @@ public class EmailJobService {
                     emailJob.setEmailTo(s);
                     emailSenderService.sendMailOnTime(emailJob);
                 }
-
                 logger.info("Email send successfully to all emails!");
-
 //            job.setDateDue(job.getDateDue().plusHours(job.getRepetition().getInHours()));
                 emailJob.setEmailTo(tempEmail);
                 emailJob.setNextSendTime(emailJob.getNextSendTime().plusMinutes(2));
@@ -324,9 +315,7 @@ public class EmailJobService {
                     emailJob.setEmailTo(s);
                     emailSenderService.sendMailOnTime(emailJob);
                 }
-
                 logger.info("Email send successfully!");
-
                 emailJob.setEmailTo(tempEmail);
                 emailJob.setActive(false);
             }
@@ -341,13 +330,11 @@ public class EmailJobService {
                         message.setSubject("Exception from user");
                         message.setText("Exception id: " + exception.getUuid() + "\n" +
                                 "Exception message: " + exception.getMessage() + "\n" +
-                                "Email job id from exception: " + exception.getId_job() + "\n" +
+                                "Email job id from exception: " + exception.getIdJob() + "\n" +
                                 "Date of exception: " + exception.getDateOfException());
                         message.setFrom("bezbednostinformaciska@gmail.com");
                         message.setTo(allAdministrator.getEmail());
-
                         logger.info("Email send to administrator!");
-
                         mailSender.send(message);
                         emailJob.setNumOfFailedTrys(0);
                     }

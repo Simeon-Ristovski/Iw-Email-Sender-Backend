@@ -1,6 +1,5 @@
 package com.iwEmailSender.iwemailsender.Service;
 
-import com.iwEmailSender.iwemailsender.Configuration.MyPasswordEncoder;
 import com.iwEmailSender.iwemailsender.Dto.Input.AccountRoleDtoInsert;
 import com.iwEmailSender.iwemailsender.Dto.Input.RoleDtoInser;
 import com.iwEmailSender.iwemailsender.Dto.Output.AccountDto;
@@ -13,6 +12,7 @@ import com.iwEmailSender.iwemailsender.Model.Account;
 import com.iwEmailSender.iwemailsender.Model.Role;
 import com.iwEmailSender.iwemailsender.Repository.AccountRepository;
 import com.iwEmailSender.iwemailsender.Repository.RoleRepository;
+import jakarta.servlet.http.HttpSession;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.apache.commons.validator.routines.EmailValidator;
 
@@ -28,24 +29,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 @Service
 public class AccountService implements UserDetailsService {
-
     private static final Logger logger= LoggerFactory.getLogger(AccountService.class);
-
+    private final HttpSession session;
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
-    private final MyPasswordEncoder myPasswordEncoder;
-
-
-    public AccountService(AccountRepository accountRepository, RoleRepository roleRepository, MyPasswordEncoder myPasswordEncoder) {
+    private final PasswordEncoder passwordEncoder;
+    public AccountService(HttpSession session, AccountRepository accountRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+        this.session = session;
         this.accountRepository = accountRepository;
         this.roleRepository = roleRepository;
-        this.myPasswordEncoder = myPasswordEncoder;
+        this.passwordEncoder = passwordEncoder;
     }
-
-
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<Account> account = accountRepository.findByEmail(email);
@@ -61,9 +57,6 @@ public class AccountService implements UserDetailsService {
             throw new UsernameNotFoundException(email);
         }
     }
-
-
-
     public List<AccountDto> findAll() {
         List<AccountDto> accounts = new ArrayList<>();
         for (Account account : accountRepository.findAll()) {
@@ -72,15 +65,12 @@ public class AccountService implements UserDetailsService {
         }
         return accounts;
     }
-
     public AccountDto findById(Long id) {
         return AccountMapper.INSTANCE.mapAccountToDto(accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account not found in Database!")));
     }
-
     public void addAccountToBaseWithRole(AccountRoleDtoInsert accountRoleDtoInsert) throws BadRequestException {
         if (!accountRepository.existsAccountByEmail(accountRoleDtoInsert.getEmail())) {
             if (EmailValidator.getInstance().isValid(accountRoleDtoInsert.getEmail()) && !accountRoleDtoInsert.getEmail().isEmpty()) {
-//                Account account = AccountRoleMapper.INSTANCE.mapDtoInsertToAccount(accountRoleDtoInsert);// Mapping from AccountDtoInsert to Account
                 if(accountRoleDtoInsert.getFirstName().isEmpty()){
                     logger.error("Field for name cannot be empty!");
                     throw new BadRequestException("Field for name cannot be empty!");
@@ -93,11 +83,12 @@ public class AccountService implements UserDetailsService {
                     logger.error("Field for password cannot be empty!");
                     throw new BadRequestException("Field for password cannot be empty!");
                 }
+
                 Account account = new Account();
                 account.setEmail(accountRoleDtoInsert.getEmail());
                 account.setFirstName(accountRoleDtoInsert.getFirstName());
                 account.setLastName(accountRoleDtoInsert.getLastName());
-                account.setPassword(myPasswordEncoder.bCryptPasswordEncoder(accountRoleDtoInsert.getPassword()));
+                account.setPassword(passwordEncoder.encode(accountRoleDtoInsert.getPassword()));
                 account.setUuid(UUID.randomUUID());
                 account.setCreatedAt(LocalDateTime.now());
                 account.setCreatedBy("SYSTEM");
@@ -109,8 +100,8 @@ public class AccountService implements UserDetailsService {
                     if (account.getRoles() == null) {
                         account.setRoles(new ArrayList<>());
                     }
-                    if (!role.getList_of_accounts().contains(account)) {
-                        role.getList_of_accounts().add(account);
+                    if (!role.getListOfAccounts().contains(account)) {
+                        role.getListOfAccounts().add(account);
                     }
                     account.getRoles().add(role);
                 } else {
@@ -121,8 +112,8 @@ public class AccountService implements UserDetailsService {
                                 if (account.getRoles() == null) {
                                     account.setRoles(new ArrayList<>());
                                 }
-                                if (!role.getList_of_accounts().contains(account)) {
-                                    role.getList_of_accounts().add(account);
+                                if (!role.getListOfAccounts().contains(account)) {
+                                    role.getListOfAccounts().add(account);
                                 }
                                 account.getRoles().add(role);
                             } else {
@@ -151,7 +142,6 @@ public class AccountService implements UserDetailsService {
             throw new AlreadyExistsException("Email already in use!");
         }
     }
-
     public void addAccountToBase(AccountDtoInset accountDtoInset) throws BadRequestException {
         if (!accountRepository.existsAccountByEmail(accountDtoInset.getEmail())) {
             if (EmailValidator.getInstance().isValid(accountDtoInset.getEmail()) && !accountDtoInset.getEmail().isEmpty()) {
@@ -169,17 +159,17 @@ public class AccountService implements UserDetailsService {
                 }
                 Account account = AccountMapper.INSTANCE.mapDtoInsertToAccount(accountDtoInset); // Mapping from AccountDtoInsert to Account
                 account.setUuid(UUID.randomUUID());
-                account.setPassword(myPasswordEncoder.bCryptPasswordEncoder(account.getPassword()));
+                account.setPassword(passwordEncoder.encode(account.getPassword()));
                 account.setCreatedAt(LocalDateTime.now());
-                account.setCreatedBy("SYSTEM");
+                account.setCreatedBy(accountDtoInset.getEmail());
                 account.setModifyAt(LocalDateTime.now());
-                account.setModifyBy("SYSTEM");
+                account.setModifyBy(accountDtoInset.getEmail());
                 Role role = roleRepository.findByRoleName("USER");
                 if (account.getRoles() == null) {
                     account.setRoles(new ArrayList<>());
                 }
-                if (!role.getList_of_accounts().contains(account)) {
-                    role.getList_of_accounts().add(account);
+                if (!role.getListOfAccounts().contains(account)) {
+                    role.getListOfAccounts().add(account);
                 }
                 account.getRoles().add(role);
                 logger.info("Account added successfully!");
@@ -195,9 +185,8 @@ public class AccountService implements UserDetailsService {
         }
 
     }
-
-    public void addRoleToAccount(Long id_acc, RoleDtoInser roleDtoInser) {
-        Account account = accountRepository.findById(id_acc).orElseThrow(() -> new ResourceNotFoundException("Account not found in Database!"));
+    public void addRoleToAccount(UUID id_acc,RoleDtoInser roleDtoInser ) {
+        Account account = accountRepository.findByUuid(id_acc);
         Role role = RoleMapper.INSTANCE.mapDtoToRole(roleDtoInser);
         if (roleRepository.existsByRoleName(role.getRoleName())) {
             Role role1 = roleRepository.findByRoleName(role.getRoleName());
@@ -205,8 +194,8 @@ public class AccountService implements UserDetailsService {
                 if (!account.getRoles().contains(role1)) {
                     account.getRoles().add(role1);
                 }
-                if (!role1.getList_of_accounts().contains(account)) {
-                    role1.getList_of_accounts().add(account);
+                if (!role1.getListOfAccounts().contains(account)) {
+                    role1.getListOfAccounts().add(account);
                 }
 
                 logger.info("Role added successfully to account!");
@@ -216,16 +205,35 @@ public class AccountService implements UserDetailsService {
                 logger.error("Account already have that role!");
                 throw new AlreadyExistsException("Account already have that role!");
             }
-
         } else {
             logger.error("The role is not in the Database!");
             throw new ResourceNotFoundException("The role is not in the Database!");
         }
     }
-
-    public void editAccount(Long id, AccountDtoInset accountDtoInset) {
-        if (accountRepository.existsAccountById(id)) {
-            Account editAcc = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account not found in Database!"));
+    public void removeRoleToAccount(UUID id_acc,RoleDtoInser roleDtoInser ) {
+        Account account = accountRepository.findByUuid(id_acc);
+        Role role = RoleMapper.INSTANCE.mapDtoToRole(roleDtoInser);
+        if (roleRepository.existsByRoleName(role.getRoleName())) {
+            Role role1 = roleRepository.findByRoleName(role.getRoleName());
+            if (account.getRoles().contains(role1)) {
+                account.getRoles().remove(role1);
+                if (role1.getListOfAccounts().contains(account)) {
+                    role1.getListOfAccounts().remove(account);
+                }
+                logger.info("Role removed successfully from account!");
+                accountRepository.save(account);
+            } else {
+                logger.error("Account doesn't that role!");
+                throw new AlreadyExistsException("Account doesn't have that role!");
+            }
+        } else {
+            logger.error("The role is not in the Database!");
+            throw new ResourceNotFoundException("The role is not in the Database!");
+        }
+    }
+    public void editAccount(UUID uuid, AccountDtoInset accountDtoInset) {
+        if (accountRepository.existsByUuid(uuid)) {
+            Account editAcc = accountRepository.findByUuid(uuid);
             editAcc.setModifyAt(LocalDateTime.now());
             editAcc.setModifyBy("SYSTEM"); //Change when session is implemented
             if (!accountDtoInset.getFirstName().equals(editAcc.getFirstName())) {
@@ -243,7 +251,7 @@ public class AccountService implements UserDetailsService {
                 }
             }
             if (!accountDtoInset.getPassword().equals(editAcc.getPassword())) {
-                editAcc.setPassword(myPasswordEncoder.bCryptPasswordEncoder(accountDtoInset.getPassword()));
+                editAcc.setPassword(passwordEncoder.encode(accountDtoInset.getPassword()));
             }
             logger.info("Account successfully edited!");
             accountRepository.save(editAcc);
@@ -252,11 +260,10 @@ public class AccountService implements UserDetailsService {
             throw new ResourceNotFoundException("Account not found in Database!");
         }
     }
-
     public void deleteAccount(Long id) {
         if (accountRepository.existsAccountById(id)) {
             Account account = accountRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account can't be found!"));
-            account.getRoles().forEach(role -> role.getList_of_accounts().remove(account));
+            account.getRoles().forEach(role -> role.getListOfAccounts().remove(account));
             account.getRoles().clear();
             logger.info("Account successfully deleted!");
             accountRepository.delete(account);
@@ -265,13 +272,11 @@ public class AccountService implements UserDetailsService {
             throw new ResourceNotFoundException("Account can't be found!");
         }
     }
-
-
     public void deleteAllAccounts() {
         if (!accountRepository.findAll().isEmpty()) {
             for (Account accountTemp : accountRepository.findAll()) {
                 Account account = accountRepository.findById(accountTemp.getId()).orElseThrow(() -> new ResourceNotFoundException("Account can't be found!"));
-                account.getRoles().forEach(role -> role.getList_of_accounts().remove(account));
+                account.getRoles().forEach(role -> role.getListOfAccounts().remove(account));
                 account.getRoles().clear();
                 logger.info("Deleted all accounts!");
                 accountRepository.delete(account);
@@ -281,6 +286,4 @@ public class AccountService implements UserDetailsService {
             throw new ResourceNotFoundException("No accounts in Database!");
         }
     }
-
-
 }

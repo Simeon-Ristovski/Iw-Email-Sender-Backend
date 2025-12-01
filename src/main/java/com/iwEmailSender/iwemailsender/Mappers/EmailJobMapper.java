@@ -11,9 +11,7 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface EmailJobMapper {
-
     EmailJobMapper INSTANCE = Mappers.getMapper(EmailJobMapper.class);
-
     EmailJobDto mapEmailJobToDto(EmailJob emailJob);
     EmailJob mapDtoInsertToEmailJob(EmailJobDtoInsert emailJobDto);
     default String map(Status status){
@@ -24,7 +22,7 @@ public interface EmailJobMapper {
     }
     default String map(Account account) {
         if (account == null) return null;
-        return account.getFirstName() + " " + account.getLastName();
+        return account.getFirstName() + " " + account.getLastName()+" Email: " + account.getEmail();
     }
     default Repetition mapRepetition(String repetitionStr) {
         if (repetitionStr == null) {
@@ -34,5 +32,4 @@ public interface EmailJobMapper {
         repetition.setRepetitionName(repetitionStr);
         return repetition;
     }
-
 }

@@ -1,6 +1,5 @@
 package com.iwEmailSender.iwemailsender.Controller;
 
-import com.iwEmailSender.iwemailsender.Dto.Output.EmailJobDto;
 import com.iwEmailSender.iwemailsender.Dto.Output.ExeceptionEntityDto;
 import com.iwEmailSender.iwemailsender.Service.ExceptionEntityService;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,6 @@ import java.util.UUID;
 @RequestMapping("/api/v1/exceptions")
 public class ExceptionEntityController {
     private final ExceptionEntityService exceptionEntityService;
-
     public ExceptionEntityController(ExceptionEntityService exceptionEntityService) {
         this.exceptionEntityService = exceptionEntityService;
     }
@@ -28,16 +26,14 @@ public class ExceptionEntityController {
         ExeceptionEntityDto execeptionEntityDto= exceptionEntityService.findByUuid(uuid);
         return new ResponseEntity<>(execeptionEntityDto,HttpStatus.OK);
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteException(@PathVariable Long id){
-            exceptionEntityService.deleteException(id);
-        return new ResponseEntity<>("Exception deleted from Database", HttpStatus.CREATED);
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<?> deleteException(@PathVariable UUID uuid){
+            exceptionEntityService.deleteException(uuid);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
-    @DeleteMapping()
-    public ResponseEntity<String> deleteAllExceptions() {
+    @DeleteMapping("")
+    public ResponseEntity<?> deleteAllExceptions() {
         exceptionEntityService.deleteAllExceptions();
-        return new ResponseEntity<>("Deleted all exceptions!",HttpStatus.OK);
-
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -9,21 +9,16 @@ import com.iwEmailSender.iwemailsender.Model.Repetition;
 import com.iwEmailSender.iwemailsender.Repository.RepetitionRepository;
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
 @Service
 public class RepetitionService {
     private  final RepetitionRepository repetitionRepository;
-
     public RepetitionService(RepetitionRepository repetitionRepository) {
         this.repetitionRepository = repetitionRepository;
-
     }
-
     public List<RepetitionDto> findAll(){
         List<RepetitionDto> list=new ArrayList<>();
         for (Repetition repetition : repetitionRepository.findAll()) {
@@ -35,7 +30,6 @@ public class RepetitionService {
     public RepetitionDto findById(Long id){
         return RepetitionMapper.INSTANCE.mapRepetitionToDto(repetitionRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("The repetition with that id doesn't exist in Database!")));
     }
-
     public void addRepetition(RepetitionDtoInsert repetitionDtoInsert){
         if(!repetitionRepository.existsByRepetitionName(repetitionDtoInsert.getRepetitionName())){
             Repetition repetition= RepetitionMapper.INSTANCE.mapDtoToRepetition(repetitionDtoInsert);
@@ -45,9 +39,9 @@ public class RepetitionService {
             throw new AlreadyExistsException("The repetition already exists in Database!");
         }
     }
-    public void deleteRepetition(Long id) throws BadRequestException {
-        if(repetitionRepository.existsById(id)){
-            Repetition repetition= repetitionRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("The repetition with that id doesn't exist in Database!"));
+    public void deleteRepetition(UUID uuid) throws BadRequestException {
+        if(repetitionRepository.existsByUuid(uuid)){
+            Repetition repetition= repetitionRepository.findByUuid(uuid);
            if(repetition.getListOfEmailJobs().isEmpty()){
                repetition.getListOfEmailJobs().clear();
                repetitionRepository.delete(repetition);
@@ -59,8 +53,4 @@ public class RepetitionService {
         }
 
     }
-
-
-
-
 }

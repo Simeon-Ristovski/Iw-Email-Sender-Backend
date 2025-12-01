@@ -12,12 +12,9 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface StatusMapper {
-
     StatusMapper INSTANCE = Mappers.getMapper(StatusMapper.class);
-
     StatusDto mapStatusToDto(Status status);
     Status mapDtoToStatus(StatusDtoInsert dtoInsert);
-
     default List<String> map(List<EmailJob> emailJobs){
         return emailJobs.stream().map(EmailJob::toString).collect(Collectors.toList());
     }

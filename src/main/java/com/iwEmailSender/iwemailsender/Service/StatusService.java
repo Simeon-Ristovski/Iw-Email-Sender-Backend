@@ -8,23 +8,16 @@ import com.iwEmailSender.iwemailsender.Mappers.StatusMapper;
 import com.iwEmailSender.iwemailsender.Model.Status;
 import com.iwEmailSender.iwemailsender.Repository.StatusRepository;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-
 @Service
 public class StatusService {
-
     private final StatusRepository statusRepository;
-
-
     public StatusService(StatusRepository statusRepository) {
         this.statusRepository = statusRepository;
     }
-
-//
     public List<StatusDto> findAll(){
         List<StatusDto> list=new ArrayList<>();
         for (Status status : statusRepository.findAll()) {
@@ -36,7 +29,6 @@ public class StatusService {
     public StatusDto findById(Long id){
         return StatusMapper.INSTANCE.mapStatusToDto(statusRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("The status with that id doesn't exist in Database!")));
     }
-
     public void addStatus(StatusDtoInsert statusDtoInsert){
         if(!statusRepository.existsByStatusName(statusDtoInsert.getStatusName())){
             Status status = StatusMapper.INSTANCE.mapDtoToStatus(statusDtoInsert);
@@ -47,10 +39,9 @@ public class StatusService {
         }
 
     }
-
-    public void deleteStatus(Long id){
-        if(statusRepository.existsById(id)){
-            statusRepository.delete(statusRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("The status with that id doesn't exist in Database!")));
+    public void deleteStatus(UUID uuid){
+        if(statusRepository.existsByUuid(uuid)){
+            statusRepository.delete(statusRepository.findByUuid(uuid));
         }else {
             throw new ResourceNotFoundException("The status doesn't exists in Database");
         }

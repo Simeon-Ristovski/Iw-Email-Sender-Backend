@@ -13,9 +13,7 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface AccountMapper {
-
     AccountMapper INSTANCE = Mappers.getMapper(AccountMapper.class);
-
     AccountDto mapAccountToDto(Account account);
     default List<String> map(List<Role> roles){
         return roles.stream().map(Role::getRoleName).collect(Collectors.toList());
@@ -27,6 +25,4 @@ public interface AccountMapper {
         r.setRepetitionName(repetitionDto.getRepetitionName());
         return r;
     }
-
-
 }

@@ -13,10 +13,8 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
     RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
-
     Role mapDtoToRole(RoleDtoInser roleDtoInser);
     RoleDto mapRoleToDto(Role role);
-
     default List<String>map(List<Account> accounts){
         return accounts.stream().map(Account::toString).collect(Collectors.toList());
     }

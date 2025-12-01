@@ -11,18 +11,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
-
     private final AccountService accountService;
-
-
     public AccountController(AccountService accountService) {
         this.accountService = accountService;
     }
-
     @GetMapping("")
     public ResponseEntity<List<AccountDto>> findAll() {
         List<AccountDto> list=accountService.findAll();
@@ -44,27 +41,29 @@ public class AccountController {
         accountService.addAccountToBaseWithRole(accountRoleDtoInsert);
         return new ResponseEntity<>("Added Account!",HttpStatus.CREATED);
     }
-    @PostMapping("/{id_acc}/roles")
-    public ResponseEntity<String> addRoleToAccount(@PathVariable Long id_acc, @RequestBody RoleDtoInser roleDtoInser) {
-        accountService.addRoleToAccount(id_acc, roleDtoInser);
+    @PostMapping("/{uuid_acc}/roles")
+    public ResponseEntity<String> addRoleToAccount(@PathVariable UUID uuid_acc, @RequestBody RoleDtoInser roleDtoInser) {
+        accountService.addRoleToAccount(uuid_acc, roleDtoInser);
         return new ResponseEntity<>("Role added to Account!",HttpStatus.OK);
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<String> editAccount(@PathVariable Long id, @RequestBody AccountDtoInset accountDtoInset) {
-        accountService.editAccount(id, accountDtoInset);
+    @PostMapping("/{uuid_acc}/roles/remove")
+    public ResponseEntity<String> removeRoleToAccount(@PathVariable UUID uuid_acc, @RequestBody RoleDtoInser roleDtoInser) {
+        accountService.removeRoleToAccount(uuid_acc, roleDtoInser);
+        return new ResponseEntity<>("Role removed from Account!",HttpStatus.OK);
+    }
+    @PutMapping("/{uuid}")
+    public ResponseEntity<String> editAccount(@PathVariable UUID uuid, @RequestBody AccountDtoInset accountDtoInset) {
+        accountService.editAccount(uuid, accountDtoInset);
         return new ResponseEntity<>("Successfully edited account!",HttpStatus.OK);
     }
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteAccount(@PathVariable Long id) {
+    public ResponseEntity<?> deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
-        return new ResponseEntity<>("Deleted Account with id:" + id,HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
-
     @DeleteMapping("")
-    public ResponseEntity<String> deleteAccount() {
+    public ResponseEntity<?> deleteAccount() {
         accountService.deleteAllAccounts();
-        return new ResponseEntity<>("Deleted Accounts",HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

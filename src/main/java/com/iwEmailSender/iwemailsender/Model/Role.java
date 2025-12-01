@@ -1,7 +1,6 @@
 package com.iwEmailSender.iwemailsender.Model;
 
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +16,6 @@ public class Role {
     private UUID uuid;
     @Column(name = "role_name")
     private String roleName;
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "account_roles",
@@ -26,40 +24,31 @@ public class Role {
             inverseJoinColumns  =@JoinColumn(name = "id_account")
 
     )
-    private List<Account> list_of_accounts= new ArrayList<>();
-
+    private List<Account> listOfAccounts= new ArrayList<>();
     public long getId() {
         return id;
     }
-
     public void setId(long id) {
         this.id = id;
     }
-
     public UUID getUuid() {
         return uuid;
     }
-
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
-
     public String getRoleName() {
         return roleName;
     }
-
     public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
-
-    public List<Account> getList_of_accounts() {
-        return list_of_accounts;
+    public List<Account> getListOfAccounts() {
+        return listOfAccounts;
     }
-
-    public void setList_of_accounts(List<Account> list_of_accounts) {
-        this.list_of_accounts = list_of_accounts;
+    public void setListOfAccounts(List<Account> listOfAccounts) {
+        this.listOfAccounts = listOfAccounts;
     }
-
     @Override
     public String toString() {
         return  roleName ;

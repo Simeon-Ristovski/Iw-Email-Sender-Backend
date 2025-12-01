@@ -12,12 +12,9 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface RepetitionMapper {
-
     RepetitionMapper INSTANCE = Mappers.getMapper(RepetitionMapper.class);
-
     RepetitionDto mapRepetitionToDto(Repetition repetition);
     Repetition mapDtoToRepetition(RepetitionDtoInsert repetitionDtoInsert);
-
     default List<String> map(List<EmailJob> emailJob){
         return emailJob.stream().map(EmailJob::toString).collect(Collectors.toList());
     }

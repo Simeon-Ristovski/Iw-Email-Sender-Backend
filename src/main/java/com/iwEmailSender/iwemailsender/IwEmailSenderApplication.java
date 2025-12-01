@@ -11,12 +11,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableRetry
 public class IwEmailSenderApplication {
-
 	private static final Logger logger= LoggerFactory.getLogger(IwEmailSenderApplication.class);
-
 	public static void main(String[] args) {
 		logger.info("Application is on!");
 		SpringApplication.run(IwEmailSenderApplication.class, args);
 	}
-
 }

@@ -1,8 +1,6 @@
 package com.iwEmailSender.iwemailsender.Model;
 
 import jakarta.persistence.*;
-import org.springframework.data.repository.cdi.Eager;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -20,51 +18,38 @@ public class Repetition {
     private String repetitionName;
     @Column(name = "in_hours")
     private Integer inHours;
-
-
     @OneToMany(mappedBy = "repetition",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<EmailJob> listOfEmailJobs= new ArrayList<>();
-
     public long getId() {
         return id;
     }
-
     public void setId(long id) {
         this.id = id;
     }
-
     public UUID getUuid() {
         return uuid;
     }
-
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
-
     public String getRepetitionName() {
         return repetitionName;
     }
-
     public void setRepetitionName(String repetitionName) {
         this.repetitionName = repetitionName;
     }
-
     public Integer getInHours() {
         return inHours;
     }
-
     public void setInHours(Integer inHours) {
         this.inHours = inHours;
     }
-
     public List<EmailJob> getListOfEmailJobs() {
         return listOfEmailJobs;
     }
-
     public void setListOfEmailJobs(List<EmailJob> listOfEmailJobs) {
         this.listOfEmailJobs = listOfEmailJobs;
     }
-
     @Override
     public String toString() {
         return repetitionName ;
